@@ -1,0 +1,319 @@
+import { useState } from "react";
+import { useParams, useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
+import { useAppAuth } from "@/contexts/AuthContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  MapPin,
+  DollarSign,
+  FileText,
+  User,
+  CreditCard,
+  Pencil,
+  Heart,
+  Phone,
+  BadgeCheck,
+} from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import StatusBadge from "@/components/StatusBadge";
+import AgendamentoModal from "@/components/AgendamentoModal";
+import CobrancaModal from "@/components/CobrancaModal";
+
+function formatCurrency(value: string | number) {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(value));
+}
+
+const FORMA_PAGAMENTO_LABELS: Record<string, string> = {
+  pix: "PIX",
+  dinheiro: "Dinheiro",
+  cartao_credito: "Cartão de Crédito",
+  cartao_debito: "Cartão de Débito",
+  transferencia: "Transferência Bancária",
+  boleto: "Boleto",
+};
+
+export default function AgendamentoDetalhe() {
+  const params = useParams<{ id: string }>();
+  const id = parseInt(params.id ?? "0");
+  const [, navigate] = useLocation();
+  const { isAdmin } = useAppAuth();
+  const utils = trpc.useUtils();
+
+  const [showEdit, setShowEdit] = useState(false);
+  const [showCobranca, setShowCobranca] = useState(false);
+
+  const { data, isLoading, error } = trpc.agendamentos.byId.useQuery(
+    { id },
+    { enabled: !!id }
+  );
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4 page-enter">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Skeleton className="h-64 lg:col-span-2" />
+          <Skeleton className="h-64" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="text-center py-16">
+        <Heart className="w-12 h-12 text-muted-foreground/25 mx-auto mb-4" />
+        <p className="font-medium">Agendamento não encontrado</p>
+        <Button variant="outline" className="mt-4" onClick={() => navigate("/agendamentos")}>
+          <ArrowLeft className="w-4 h-4 mr-2" /> Voltar
+        </Button>
+      </div>
+    );
+  }
+
+  const cobranca = data.cobranca;
+  const canAddCobranca = data.status === "orcamento" && !cobranca;
+  const canEditCobranca = !!cobranca;
+
+  return (
+    <div className="space-y-5 page-enter">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/agendamentos")}>
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <div className="flex-1">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-xl font-bold">{data.nomeNoiva} & {data.nomeNoivo}</h1>
+            <StatusBadge status={data.status} />
+          </div>
+          <p className="text-sm text-muted-foreground mt-0.5">Agendamento #{data.id}</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => setShowEdit(true)}>
+          <Pencil className="w-4 h-4 mr-2" /> Editar
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main info */}
+        <div className="lg:col-span-2 space-y-5">
+          <Card className="border-border/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Heart className="w-4 h-4 text-primary" />
+                Dados do Evento
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <InfoItem icon={<User className="w-4 h-4" />} label="Noiva" value={data.nomeNoiva} />
+                <InfoItem icon={<User className="w-4 h-4" />} label="Noivo" value={data.nomeNoivo} />
+                <InfoItem
+                  icon={<Calendar className="w-4 h-4" />}
+                  label="Data do Evento"
+                  value={data.dataEvento ? format(new Date(data.dataEvento), "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : "-"}
+                />
+                <InfoItem
+                  icon={<Clock className="w-4 h-4" />}
+                  label="Horário"
+                  value={data.horario?.slice(0, 5) ?? "-"}
+                />
+              </div>
+              <Separator />
+              <InfoItem
+                icon={<MapPin className="w-4 h-4" />}
+                label="Endereço da Cerimônia"
+                value={data.enderecoCerimonia}
+              />
+              <InfoItem
+                icon={<DollarSign className="w-4 h-4" />}
+                label="Valor do Serviço"
+                value={formatCurrency(data.valorServico)}
+                valueClass="text-primary font-semibold"
+              />
+              {data.observacoes && (
+                <>
+                  <Separator />
+                  <InfoItem
+                    icon={<FileText className="w-4 h-4" />}
+                    label="Observações"
+                    value={data.observacoes}
+                  />
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Cobrança */}
+          <Card className="border-border/50">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-primary" />
+                  Dados de Cobrança
+                </CardTitle>
+                {canAddCobranca && (
+                  <Button size="sm" onClick={() => setShowCobranca(true)}>
+                    Fechar orçamento
+                  </Button>
+                )}
+                {canEditCobranca && (
+                  <Button variant="outline" size="sm" onClick={() => setShowCobranca(true)}>
+                    <Pencil className="w-3.5 h-3.5 mr-1.5" /> Editar cobrança
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {cobranca ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <InfoItem icon={<User className="w-4 h-4" />} label="Responsável Financeiro" value={cobranca.nomeResponsavel} />
+                    <InfoItem icon={<BadgeCheck className="w-4 h-4" />} label="CPF" value={cobranca.cpf} />
+                    <InfoItem
+                      icon={<DollarSign className="w-4 h-4" />}
+                      label="Valor Cobrado"
+                      value={formatCurrency(cobranca.valor)}
+                      valueClass="text-primary font-semibold"
+                    />
+                    <InfoItem
+                      icon={<CreditCard className="w-4 h-4" />}
+                      label="Forma de Pagamento"
+                      value={FORMA_PAGAMENTO_LABELS[cobranca.formaPagamento] ?? cobranca.formaPagamento}
+                    />
+                  </div>
+                  <InfoItem icon={<MapPin className="w-4 h-4" />} label="Endereço" value={cobranca.enderecoCompleto} />
+                  <InfoItem icon={<FileText className="w-4 h-4" />} label="Condição de Pagamento" value={cobranca.condicaoPagamento} />
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <CreditCard className="w-10 h-10 text-muted-foreground/25 mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Nenhuma cobrança cadastrada</p>
+                  {data.status === "orcamento" && (
+                    <p className="text-xs text-muted-foreground/70 mt-1">
+                      Clique em "Fechar orçamento" para cadastrar os dados de cobrança
+                    </p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Sidebar info */}
+        <div className="space-y-5">
+          <Card className="border-border/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Informações</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Status atual</p>
+                <StatusBadge status={data.status} />
+              </div>
+              <Separator />
+              <div>
+                <p className="text-xs text-muted-foreground">Criado em</p>
+                <p className="text-sm font-medium mt-0.5">
+                  {format(new Date(data.createdAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Última atualização</p>
+                <p className="text-sm font-medium mt-0.5">
+                  {format(new Date(data.updatedAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Status flow */}
+          <Card className="border-border/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Fluxo do contrato</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {[
+                  { status: "orcamento", label: "Orçamento" },
+                  { status: "confirmado", label: "Confirmado" },
+                  { status: "pendente", label: "Pendente" },
+                  { status: "concluido", label: "Concluído" },
+                ].map((step, idx) => {
+                  const isActive = data.status === step.status;
+                  const statusOrder = ["orcamento", "confirmado", "pendente", "concluido"];
+                  const currentIdx = statusOrder.indexOf(data.status);
+                  const stepIdx = statusOrder.indexOf(step.status);
+                  const isDone = stepIdx < currentIdx;
+
+                  return (
+                    <div key={step.status} className="flex items-center gap-3">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all
+                        ${isActive ? "bg-primary text-primary-foreground shadow-sm" : isDone ? "bg-green-100 text-green-600" : "bg-muted text-muted-foreground"}`}>
+                        {isDone ? "✓" : idx + 1}
+                      </div>
+                      <span className={`text-sm ${isActive ? "font-semibold text-primary" : isDone ? "text-muted-foreground line-through" : "text-muted-foreground"}`}>
+                        {step.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Modals */}
+      <AgendamentoModal
+        open={showEdit}
+        onClose={() => setShowEdit(false)}
+        agendamento={data}
+        onSuccess={() => utils.agendamentos.byId.invalidate({ id })}
+      />
+
+      <CobrancaModal
+        open={showCobranca}
+        onClose={() => setShowCobranca(false)}
+        agendamentoId={id}
+        cobranca={cobranca}
+        onSuccess={() => {
+          utils.agendamentos.byId.invalidate({ id });
+          utils.dashboard.stats.invalidate();
+        }}
+      />
+    </div>
+  );
+}
+
+function InfoItem({
+  icon,
+  label,
+  value,
+  valueClass = "",
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  valueClass?: string;
+}) {
+  return (
+    <div className="flex gap-3">
+      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0 text-muted-foreground mt-0.5">
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className={`text-sm mt-0.5 break-words ${valueClass || "font-medium"}`}>{value}</p>
+      </div>
+    </div>
+  );
+}
