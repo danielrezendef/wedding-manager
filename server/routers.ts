@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
+import { webcrypto } from "node:crypto";
 import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -29,6 +30,10 @@ import {
 import { ENV } from "./_core/env";
 import { storagePut } from "./storage";
 import { OAuth2Client } from "google-auth-library";
+
+if (!globalThis.crypto) {
+  globalThis.crypto = webcrypto as Crypto;
+}
 
 // ─── JWT helpers ──────────────────────────────────────────────────────────────
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? "wedding-secret-key");
