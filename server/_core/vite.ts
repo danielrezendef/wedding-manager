@@ -50,26 +50,38 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   const dirname = import.meta.dirname || process.cwd();
-  let distPath = "/app/client/dist";
   
-  if (dirname && dirname !== "undefined") {
-    distPath = path.resolve(dirname, "../client/dist");
+  // Try multiple possible paths for the build directory
+  const possiblePaths = [
+    dirname && dirname !== "undefined" ? path.resolve(dirname, "../client/dist") : null,
+    "/app/client/dist",
+    path.resolve(process.cwd(), "dist/public"),
+    path.resolve(process.cwd(), "client/dist"),
+  ].filter((p): p is string => p !== null && p !== "undefined");
+  
+  let distPath: string | null = null;
+  for (const tryPath of possiblePaths) {
+    if (fs.existsSync(tryPath)) {
+      distPath = tryPath;
+      console.log(`[serveStatic] Found build directory at: ${distPath}`);
+      break;
+    }
   }
   
-  if (!fs.existsSync(distPath)) {
-    console.warn(
-      `Could not find the build directory: ${distPath}, using fallback path`
-    );
-    distPath = "/app/client/dist";
-    if (!fs.existsSync(distPath)) {
-      console.error("Build directory not found in any location");
-      return;
-    }
+  if (!distPath) {
+    console.error(`[serveStatic] Build directory not found. Tried: ${possiblePaths.join(", ")}`);
+    return;
   }
 
   app.use(express.static(distPath));
 
   app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+    const indexPath = path.resolve(distPath!, "index.html");
+    if (!fs.existsSync(indexPath)) {
+      console.error(`[serveStatic] index.html not found at: ${indexPath}`);
+      res.status(404).send("Not found");
+      return;
+    }
+    res.sendFile(indexPath);
   });
 }
