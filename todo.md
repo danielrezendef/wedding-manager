@@ -85,3 +85,11 @@
 - [x] Renomear status "pendente" para "cobrança" em todo o sistema
 - [x] Mudar status automaticamente para "cobrança" ao emitir PDF
 - [x] Adicionar testes para PDF e alteração de status
+
+## Correções e Melhorias - Fase 3
+- [x] Verificar e corrigir responsividade em mobile
+- [x] Corrigir sobreposição de elementos em diferentes tamanhos
+- [x] Corrigir problema de login automático
+- [x] Adicionar UI para login com Google (em breve)
+- [x] Adicionar UI para login com Apple (em breve)
+- [x] Testar fluxo de login social
