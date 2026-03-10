@@ -49,14 +49,15 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function Login() {
   const [, navigate] = useLocation();
-  const { refetch } = useAppAuth();
+  const { user, refetch, setUser } = useAppAuth();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [socialLoading, setSocialLoading] = useState<"google" | null>(null);
   const googleBtnRef = useRef<HTMLDivElement>(null);
 
   const loginMutation = trpc.auth.login.useMutation({
-    onSuccess: async () => {
+    onSuccess: async (data) => {
+      setUser(data.user);
       await refetch();
       toast.success("Bem-vindo ao Wedding Manager!");
       navigate("/dashboard");
@@ -65,7 +66,8 @@ export default function Login() {
   });
 
   const registerMutation = trpc.auth.register.useMutation({
-    onSuccess: async () => {
+    onSuccess: async (data) => {
+      setUser(data.user);
       await refetch();
       toast.success("Conta criada com sucesso!");
       navigate("/dashboard");
@@ -74,8 +76,9 @@ export default function Login() {
   });
 
   const googleLoginMutation = trpc.auth.googleLogin.useMutation({
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       setSocialLoading(null);
+      setUser(data.user);
       await refetch();
       toast.success("Login com Google realizado com sucesso!");
       navigate("/dashboard");
@@ -128,6 +131,12 @@ export default function Login() {
       return () => clearInterval(interval);
     }
   }, [handleGoogleCallback]);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   // Handle Google button click
   const handleGoogleLogin = () => {

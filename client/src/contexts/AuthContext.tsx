@@ -14,7 +14,8 @@ type AuthContextType = {
   loading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  refetch: () => void;
+  refetch: () => Promise<unknown>;
+  setUser: (user: AuthUser | null) => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -22,7 +23,8 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   isAuthenticated: false,
   isAdmin: false,
-  refetch: () => {},
+  refetch: async () => undefined,
+  setUser: () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -30,13 +32,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     retry: false,
     refetchOnWindowFocus: false,
   });
+  const [sessionUser, setSessionUser] = useState<AuthUser | null>(null);
+
+  useEffect(() => {
+    setSessionUser((user as AuthUser | null) ?? null);
+  }, [user]);
 
   const value: AuthContextType = {
-    user: user as AuthUser | null ?? null,
+    user: sessionUser,
     loading: isLoading,
-    isAuthenticated: !!user,
-    isAdmin: (user as AuthUser | null)?.role === "admin",
+    isAuthenticated: !!sessionUser,
+    isAdmin: sessionUser?.role === "admin",
     refetch,
+    setUser: setSessionUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
