@@ -25,6 +25,7 @@ import {
   updateUserProfile,
 } from "./db";
 import { ENV } from "./_core/env";
+import { storagePut } from "./storage";
 
 // ─── JWT helpers ──────────────────────────────────────────────────────────────
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? "wedding-secret-key");
@@ -123,6 +124,24 @@ const authRouter = router({
       await updateUserProfile(ctx.user.id, input);
       const updated = await getUserById(ctx.user.id);
       return { success: true, user: updated };
+    }),
+
+  generateProfilePhotoUploadUrl: protectedProcedure
+    .input(
+      z.object({
+        fileName: z.string().min(1),
+        contentType: z.string().min(1),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+      try {
+        const fileKey = `profile-photos/${ctx.user.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const { url } = await storagePut(fileKey, "", input.contentType);
+        return { success: true, uploadUrl: url, fileKey };
+      } catch (error) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Erro ao gerar URL de upload" });
+      }
     }),
 
   uploadProfilePhoto: protectedProcedure

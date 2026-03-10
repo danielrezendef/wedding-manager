@@ -108,3 +108,10 @@
 - [x] Integrar foto no menu lateral
 - [x] Integrar foto na página de Perfil
 - [x] Testes de upload de foto
+
+## Integração com S3 para Fotos de Perfil - Fase 6
+- [x] Criar router tRPC para gerar presigned URL
+- [x] Implementar upload direto para S3 no frontend
+- [x] Atualizar procedure uploadProfilePhoto para usar S3
+- [x] Remover armazenamento base64 de fotos
+- [x] Testes de integração S3
