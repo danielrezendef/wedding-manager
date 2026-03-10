@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Eye, EyeOff, Heart, Loader2 } from "lucide-react";
 
-// Google and Apple SDK types
+// Google SDK types
 interface GoogleAccounts {
   accounts: {
     id: {
@@ -23,23 +23,11 @@ interface GoogleAccounts {
   };
 }
 
-interface AppleAuth {
-  auth: {
-    init: (config: any) => void;
-    signIn: () => Promise<any>;
-  };
-}
-
 function getGoogleAccounts(): GoogleAccounts | undefined {
   return (window as any).google;
 }
 
-function getAppleID(): AppleAuth | undefined {
-  return (window as any).AppleID;
-}
-
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
-const APPLE_CLIENT_ID = import.meta.env.VITE_APPLE_CLIENT_ID || "";
 
 const loginSchema = z.object({
   email: z.string().email("E-mail inválido"),
@@ -64,7 +52,7 @@ export default function Login() {
   const { refetch } = useAppAuth();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [showPassword, setShowPassword] = useState(false);
-  const [socialLoading, setSocialLoading] = useState<"google" | "apple" | null>(null);
+  const [socialLoading, setSocialLoading] = useState<"google" | null>(null);
   const googleBtnRef = useRef<HTMLDivElement>(null);
 
   const loginMutation = trpc.auth.login.useMutation({
@@ -95,19 +83,6 @@ export default function Login() {
     onError: (err) => {
       setSocialLoading(null);
       toast.error(err.message || "Erro ao fazer login com Google");
-    },
-  });
-
-  const appleLoginMutation = trpc.auth.appleLogin.useMutation({
-    onSuccess: async () => {
-      setSocialLoading(null);
-      await refetch();
-      toast.success("Login com Apple realizado com sucesso!");
-      navigate("/dashboard");
-    },
-    onError: (err) => {
-      setSocialLoading(null);
-      toast.error(err.message || "Erro ao fazer login com Apple");
     },
   });
 
@@ -168,57 +143,6 @@ export default function Login() {
     }
   };
 
-  // Handle Apple Sign-In
-  const handleAppleLogin = async () => {
-    if (!APPLE_CLIENT_ID) {
-      toast.error("Login com Apple não configurado. Configure o VITE_APPLE_CLIENT_ID.");
-      return;
-    }
-
-    try {
-      setSocialLoading("apple");
-
-      const appleAuth = getAppleID();
-      if (!appleAuth) {
-        toast.error("Apple Sign-In ainda não carregou. Tente novamente.");
-        setSocialLoading(null);
-        return;
-      }
-
-      appleAuth.auth.init({
-        clientId: APPLE_CLIENT_ID,
-        scope: "name email",
-        redirectURI: window.location.origin + "/login",
-        usePopup: true,
-      });
-
-      const response = await appleAuth.auth.signIn();
-
-      if (response?.authorization?.id_token) {
-        const userData = response.user ? {
-          name: response.user.name
-            ? `${response.user.name.firstName || ""} ${response.user.name.lastName || ""}`.trim()
-            : undefined,
-          email: response.user.email || undefined,
-        } : undefined;
-
-        appleLoginMutation.mutate({
-          idToken: response.authorization.id_token,
-          user: userData,
-        });
-      } else {
-        toast.error("Resposta inválida do Apple Sign-In.");
-        setSocialLoading(null);
-      }
-    } catch (error: any) {
-      console.error("Apple Sign-In error:", error);
-      if (error?.error !== "popup_closed_by_user") {
-        toast.error("Erro ao fazer login com Apple.");
-      }
-      setSocialLoading(null);
-    }
-  };
-
   const loginForm = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
   const registerForm = useForm<RegisterForm>({ resolver: zodResolver(registerSchema) });
 
@@ -259,24 +183,6 @@ export default function Login() {
           </svg>
         )}
         {socialLoading === "google" ? "Entrando com Google..." : "Continuar com Google"}
-      </Button>
-
-      {/* Apple Login */}
-      <Button
-        variant="outline"
-        className="w-full h-11"
-        onClick={handleAppleLogin}
-        disabled={socialLoading !== null || !APPLE_CLIENT_ID}
-        type="button"
-      >
-        {socialLoading === "apple" ? (
-          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-        ) : (
-          <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-          </svg>
-        )}
-        {socialLoading === "apple" ? "Entrando com Apple..." : "Continuar com Apple"}
       </Button>
 
       {/* Hidden Google button for rendering */}

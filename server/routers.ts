@@ -216,58 +216,6 @@ const authRouter = router({
       }
     }),
 
-  // ─── Apple Sign In ──────────────────────────────────────────────────────
-  appleLogin: publicProcedure
-    .input(
-      z.object({
-        idToken: z.string().min(1, "Token Apple obrigatório"),
-        user: z.object({
-          name: z.string().optional(),
-          email: z.string().email().optional(),
-        }).optional(),
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      try {
-        // Decode Apple ID token (JWT) to extract user info
-        const parts = input.idToken.split(".");
-        if (parts.length !== 3) {
-          throw new TRPCError({ code: "UNAUTHORIZED", message: "Token Apple inválido." });
-        }
-        const payloadStr = Buffer.from(parts[1], "base64url").toString("utf-8");
-        const applePayload = JSON.parse(payloadStr);
-
-        const email = input.user?.email || applePayload.email;
-        if (!email) {
-          throw new TRPCError({ code: "UNAUTHORIZED", message: "E-mail não disponível no token Apple." });
-        }
-
-        // Verifica se usuário já existe
-        let user = await getUserByEmail(email);
-        if (!user) {
-          user = await createUserFromSocial({
-            name: input.user?.name || email.split("@")[0],
-            email,
-            loginMethod: "apple",
-          });
-        }
-
-        if (!user) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-
-        const token = await signToken({ userId: user.id, email: user.email!, role: user.role });
-        const cookieOptions = getSessionCookieOptions(ctx.req);
-        ctx.res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
-
-        return {
-          success: true,
-          user: { id: user.id, name: user.name, email: user.email, role: user.role, profilePhoto: user.profilePhoto },
-        };
-      } catch (error: any) {
-        if (error instanceof TRPCError) throw error;
-        console.error("Apple login error:", error);
-        throw new TRPCError({ code: "UNAUTHORIZED", message: "Falha na autenticação com Apple." });
-      }
-    }),
 });
 
 // ─── Agendamentos Router ──────────────────────────────────────────────────────

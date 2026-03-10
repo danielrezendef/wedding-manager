@@ -91,7 +91,7 @@
 - [x] Corrigir sobreposição de elementos em diferentes tamanhos
 - [x] Corrigir problema de login automático
 - [x] Adicionar UI para login com Google (em breve)
-- [x] Adicionar UI para login com Apple (em breve)
+- [x] Removido Apple Sign In (mantido apenas Google)
 - [x] Testar fluxo de login social
 
 ## Página de Perfil do Usuário - Fase 4
@@ -119,9 +119,7 @@
 ## Correção de Upload e OAuth - Fase 7
 - [x] Debugar e corrigir erro de upload de imagem
 - [x] Implementar autenticação OAuth com Google
-- [x] Implementar autenticação OAuth com Apple
 - [x] Buscar foto de perfil do Google automaticamente
-- [x] Buscar foto de perfil do Apple automaticamente
 - [x] Testes de OAuth e upload de foto
 
 ## Autenticação Social - Fase 8
@@ -134,3 +132,10 @@
 - [x] Solicitar credenciais Google e Apple ao usuário
 - [x] Testes de autenticação social
 - [x] Sincronizar com Git
+
+## Remoção Apple Sign In - Fase 9
+- [x] Remover procedure appleLogin do backend
+- [x] Remover botão e lógica Apple do Login.tsx
+- [x] Remover Apple JS SDK do index.html
+- [ ] Remover secret VITE_APPLE_CLIENT_ID
+- [x] Testes e sincronização com Git
