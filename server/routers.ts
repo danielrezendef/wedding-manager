@@ -115,7 +115,7 @@ const agendamentosRouter = router({
   list: protectedProcedure
     .input(
       z.object({
-        status: z.enum(["orcamento", "confirmado", "pendente", "concluido"]).optional(),
+        status: z.enum(["orcamento", "confirmado", "cobranca", "concluido"]).optional(),
         nomeNoiva: z.string().optional(),
         nomeNoivo: z.string().optional(),
         dataInicio: z.string().optional(),
@@ -176,7 +176,7 @@ const agendamentosRouter = router({
         horario: z.string().optional(),
         enderecoCerimonia: z.string().optional(),
         valorServico: z.string().optional(),
-        status: z.enum(["orcamento", "confirmado", "pendente", "concluido"]).optional(),
+        status: z.enum(["orcamento", "confirmado", "cobranca", "concluido"]).optional(),
         observacoes: z.string().optional(),
       })
     )
@@ -196,7 +196,7 @@ const agendamentosRouter = router({
     .input(
       z.object({
         id: z.number(),
-        status: z.enum(["orcamento", "confirmado", "pendente", "concluido"]),
+        status: z.enum(["orcamento", "confirmado", "cobranca", "concluido"]),
       })
     )
     .mutation(async ({ input }) => {

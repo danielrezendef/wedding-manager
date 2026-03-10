@@ -126,7 +126,7 @@ export async function deleteUser(userId: number) {
 // ─── Agendamentos ─────────────────────────────────────────────────────────────
 export type AgendamentoFilters = {
   userId?: number;
-  status?: "orcamento" | "confirmado" | "pendente" | "concluido";
+  status?: "orcamento" | "confirmado" | "cobranca" | "concluido";
   nomeNoiva?: string;
   nomeNoivo?: string;
   dataInicio?: string;
@@ -206,7 +206,7 @@ export async function updateAgendamento(
     horario: string;
     enderecoCerimonia: string;
     valorServico: string;
-    status: "orcamento" | "confirmado" | "pendente" | "concluido";
+    status: "orcamento" | "confirmado" | "cobranca" | "concluido";
     observacoes: string;
   }>
 ) {

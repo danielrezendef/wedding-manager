@@ -21,6 +21,7 @@ import {
   Phone,
   BadgeCheck,
   ChevronDown,
+  Download,
 } from "lucide-react";
 import {
   Select,
@@ -193,9 +194,14 @@ export default function AgendamentoDetalhe() {
                   </Button>
                 )}
                 {canEditCobranca && (
-                  <Button variant="outline" size="sm" onClick={() => setShowCobranca(true)}>
-                    <Pencil className="w-3.5 h-3.5 mr-1.5" /> Editar cobrança
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setShowCobranca(true)}>
+                      <Pencil className="w-3.5 h-3.5 mr-1.5" /> Editar cobrança
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={() => setShowCobranca(true)}>
+                      <Download className="w-3.5 h-3.5 mr-1.5" /> Recibo
+                    </Button>
+                  </div>
                 )}
               </div>
             </CardHeader>
@@ -252,7 +258,7 @@ export default function AgendamentoDetalhe() {
                     <SelectContent>
                       <SelectItem value="orcamento">Orçamento</SelectItem>
                       <SelectItem value="confirmado">Confirmado</SelectItem>
-                      <SelectItem value="pendente">Pendente</SelectItem>
+                      <SelectItem value="cobranca">Cobrança</SelectItem>
                       <SelectItem value="concluido">Concluído</SelectItem>
                     </SelectContent>
                   </Select>
@@ -286,11 +292,11 @@ export default function AgendamentoDetalhe() {
                 {[
                   { status: "orcamento", label: "Orçamento" },
                   { status: "confirmado", label: "Confirmado" },
-                  { status: "pendente", label: "Pendente" },
+                  { status: "cobranca", label: "Cobrança" },
                   { status: "concluido", label: "Concluído" },
                 ].map((step, idx) => {
                   const isActive = data.status === step.status;
-                  const statusOrder = ["orcamento", "confirmado", "pendente", "concluido"];
+                  const statusOrder = ["orcamento", "confirmado", "cobranca", "concluido"];
                   const currentIdx = statusOrder.indexOf(data.status);
                   const stepIdx = statusOrder.indexOf(step.status);
                   const isDone = stepIdx < currentIdx;

@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#dcfce7",
     color: "#166534",
   },
-  statusPendente: {
+  statusCobranca: {
     backgroundColor: "#fed7aa",
     color: "#92400e",
   },
@@ -150,8 +150,8 @@ const getStatusColor = (status: string) => {
       return styles.statusOrcamento;
     case "confirmado":
       return styles.statusConfirmado;
-    case "pendente":
-      return styles.statusPendente;
+    case "cobranca":
+      return styles.statusCobranca;
     case "concluido":
       return styles.statusConcluido;
     default:
@@ -163,7 +163,7 @@ const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
     orcamento: "Orçamento",
     confirmado: "Confirmado",
-    pendente: "Pendente",
+    cobranca: "Cobrança",
     concluido: "Concluído",
   };
   return labels[status] || status;

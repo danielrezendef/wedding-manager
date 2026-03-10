@@ -99,6 +99,15 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
   const isPending = createMutation.isPending || updateMutation.isPending;
   const formaPagamento = watch("formaPagamento");
 
+  const updateStatusMutation = trpc.agendamentos.updateStatus.useMutation({
+    onSuccess: () => {
+      toast.success("Status atualizado para Cobrança!");
+    },
+    onError: (err) => {
+      console.error("Erro ao atualizar status:", err);
+    },
+  });
+
   const handleDownloadPDF = async () => {
     if (!agendamento || !cobranca) {
       toast.error("Dados incompletos para gerar PDF");
@@ -126,6 +135,11 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
       link.click();
       URL.revokeObjectURL(url);
       toast.success("PDF gerado com sucesso!");
+      
+      // Atualizar status para "cobranca" quando emitir PDF
+      if (agendamento.status !== "cobranca") {
+        updateStatusMutation.mutate({ id: agendamento.id, status: "cobranca" });
+      }
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
       toast.error("Erro ao gerar PDF");

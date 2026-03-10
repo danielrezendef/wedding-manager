@@ -80,6 +80,8 @@
 ## Novos Recursos - Fase 2
 - [x] Instalar @react-pdf/renderer
 - [x] Criar componente PDFRecibo
-- [x] Implementar botão de download PDF no modal de cobrança
+- [x] Implementar botão de download PDF no card de cobrança
 - [x] Implementar alteração de status para admins
+- [x] Renomear status "pendente" para "cobrança" em todo o sistema
+- [x] Mudar status automaticamente para "cobrança" ao emitir PDF
 - [x] Adicionar testes para PDF e alteração de status

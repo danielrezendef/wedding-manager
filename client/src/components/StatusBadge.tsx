@@ -1,9 +1,9 @@
-type Status = "orcamento" | "confirmado" | "pendente" | "concluido";
+type Status = "orcamento" | "confirmado" | "cobranca" | "concluido";
 
 const STATUS_CONFIG: Record<Status, { label: string; className: string }> = {
   orcamento: { label: "Orçamento", className: "status-orcamento" },
   confirmado: { label: "Confirmado", className: "status-confirmado" },
-  pendente: { label: "Pendente", className: "status-pendente" },
+  cobranca: { label: "Cobrança", className: "status-cobranca" },
   concluido: { label: "Concluído", className: "status-concluido" },
 };
 

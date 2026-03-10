@@ -26,7 +26,7 @@ const schema = z.object({
   horario: z.string().min(1, "Horário obrigatório"),
   enderecoCerimonia: z.string().min(1, "Endereço obrigatório"),
   valorServico: z.string().min(1, "Valor obrigatório"),
-  status: z.enum(["orcamento", "confirmado", "pendente", "concluido"]).optional(),
+  status: z.enum(["orcamento", "confirmado", "cobranca", "concluido"]).optional(),
   observacoes: z.string().optional(),
 });
 
@@ -170,7 +170,7 @@ export default function AgendamentoModal({ open, onClose, onSuccess, agendamento
                   <SelectContent>
                     <SelectItem value="orcamento">Orçamento</SelectItem>
                     <SelectItem value="confirmado">Confirmado</SelectItem>
-                    <SelectItem value="pendente">Pendente</SelectItem>
+                    <SelectItem value="cobranca">Cobrança</SelectItem>
                     <SelectItem value="concluido">Concluído</SelectItem>
                   </SelectContent>
                 </Select>
