@@ -49,18 +49,19 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   const dirname = import.meta.dirname || process.cwd();
-  const distPath = path.resolve(dirname, "../client/dist");
+  let distPath = "/app/client/dist";
+  
+  if (dirname && dirname !== "undefined") {
+    distPath = path.resolve(dirname, "../client/dist");
+  }
   
   if (!fs.existsSync(distPath)) {
-    console.error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`
+    console.warn(
+      `Could not find the build directory: ${distPath}, using fallback path`
     );
-    const fallbackPath = "/app/client/dist";
-    if (fs.existsSync(fallbackPath)) {
-      app.use(express.static(fallbackPath));
-      app.use("*", (_req, res) => {
-        res.sendFile(path.resolve(fallbackPath, "index.html"));
-      });
+    distPath = "/app/client/dist";
+    if (!fs.existsSync(distPath)) {
+      console.error("Build directory not found in any location");
       return;
     }
   }
