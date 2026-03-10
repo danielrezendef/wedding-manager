@@ -10,6 +10,7 @@ import {
   createAgendamento,
   createCobranca,
   createUser,
+  createUserFromSocial,
   deleteAgendamento,
   deleteUser,
   getAgendamentoById,
@@ -23,9 +24,11 @@ import {
   updateCobranca,
   updateUserRole,
   updateUserProfile,
+  updateUserProfilePhoto,
 } from "./db";
 import { ENV } from "./_core/env";
 import { storagePut } from "./storage";
+import { OAuth2Client } from "google-auth-library";
 
 // ─── JWT helpers ──────────────────────────────────────────────────────────────
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? "wedding-secret-key");
@@ -155,6 +158,115 @@ const authRouter = router({
       await updateUserProfile(ctx.user.id, { profilePhoto: input.photoUrl });
       const updated = await getUserById(ctx.user.id);
       return { success: true, user: updated };
+    }),
+
+  // ─── Google OAuth ────────────────────────────────────────────────────────
+  googleLogin: publicProcedure
+    .input(
+      z.object({
+        credential: z.string().min(1, "Token Google obrigatório"),
+        clientId: z.string().min(1, "Client ID obrigatório"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const client = new OAuth2Client(input.clientId);
+        const ticket = await client.verifyIdToken({
+          idToken: input.credential,
+          audience: input.clientId,
+        });
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Token Google inválido." });
+        }
+
+        const { email, name, picture } = payload;
+
+        // Verifica se usuário já existe
+        let user = await getUserByEmail(email);
+        if (!user) {
+          // Cria novo usuário com dados do Google
+          user = await createUserFromSocial({
+            name: name || email.split("@")[0],
+            email,
+            profilePhoto: picture || undefined,
+            loginMethod: "google",
+          });
+        } else {
+          // Atualiza foto se não tiver uma
+          if (!user.profilePhoto && picture) {
+            await updateUserProfilePhoto(user.id, picture);
+          }
+        }
+
+        if (!user) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        const token = await signToken({ userId: user.id, email: user.email!, role: user.role });
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
+
+        return {
+          success: true,
+          user: { id: user.id, name: user.name, email: user.email, role: user.role, profilePhoto: user.profilePhoto },
+        };
+      } catch (error: any) {
+        if (error instanceof TRPCError) throw error;
+        console.error("Google login error:", error);
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Falha na autenticação com Google." });
+      }
+    }),
+
+  // ─── Apple Sign In ──────────────────────────────────────────────────────
+  appleLogin: publicProcedure
+    .input(
+      z.object({
+        idToken: z.string().min(1, "Token Apple obrigatório"),
+        user: z.object({
+          name: z.string().optional(),
+          email: z.string().email().optional(),
+        }).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        // Decode Apple ID token (JWT) to extract user info
+        const parts = input.idToken.split(".");
+        if (parts.length !== 3) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Token Apple inválido." });
+        }
+        const payloadStr = Buffer.from(parts[1], "base64url").toString("utf-8");
+        const applePayload = JSON.parse(payloadStr);
+
+        const email = input.user?.email || applePayload.email;
+        if (!email) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "E-mail não disponível no token Apple." });
+        }
+
+        // Verifica se usuário já existe
+        let user = await getUserByEmail(email);
+        if (!user) {
+          user = await createUserFromSocial({
+            name: input.user?.name || email.split("@")[0],
+            email,
+            loginMethod: "apple",
+          });
+        }
+
+        if (!user) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        const token = await signToken({ userId: user.id, email: user.email!, role: user.role });
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
+
+        return {
+          success: true,
+          user: { id: user.id, name: user.name, email: user.email, role: user.role, profilePhoto: user.profilePhoto },
+        };
+      } catch (error: any) {
+        if (error instanceof TRPCError) throw error;
+        console.error("Apple login error:", error);
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Falha na autenticação com Apple." });
+      }
     }),
 });
 

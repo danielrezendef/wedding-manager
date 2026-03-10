@@ -95,6 +95,33 @@ export async function createUser(data: {
   return getUserByEmail(data.email);
 }
 
+export async function createUserFromSocial(data: {
+  name: string;
+  email: string;
+  profilePhoto?: string;
+  loginMethod: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const openId = `${data.loginMethod}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  await db.insert(users).values({
+    openId,
+    name: data.name,
+    email: data.email,
+    profilePhoto: data.profilePhoto ?? null,
+    loginMethod: data.loginMethod,
+    role: "user",
+    lastSignedIn: new Date(),
+  });
+  return getUserByEmail(data.email);
+}
+
+export async function updateUserProfilePhoto(userId: number, photoUrl: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(users).set({ profilePhoto: photoUrl }).where(eq(users.id, userId));
+}
+
 export async function listUsers() {
   const db = await getDb();
   if (!db) return [];

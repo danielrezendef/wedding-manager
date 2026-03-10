@@ -118,8 +118,19 @@
 
 ## Correção de Upload e OAuth - Fase 7
 - [x] Debugar e corrigir erro de upload de imagem
-- [ ] Implementar autenticação OAuth com Google
-- [ ] Implementar autenticação OAuth com Apple
-- [ ] Buscar foto de perfil do Google automaticamente
-- [ ] Buscar foto de perfil do Apple automaticamente
-- [ ] Testes de OAuth e upload de foto
+- [x] Implementar autenticação OAuth com Google
+- [x] Implementar autenticação OAuth com Apple
+- [x] Buscar foto de perfil do Google automaticamente
+- [x] Buscar foto de perfil do Apple automaticamente
+- [x] Testes de OAuth e upload de foto
+
+## Autenticação Social - Fase 8
+- [x] Instalar google-auth-library e apple-signin-auth
+- [x] Criar routers tRPC para Google OAuth
+- [x] Criar routers tRPC para Apple Sign In
+- [x] Atualizar página de Login com botões sociais funcionais
+- [x] Buscar foto de perfil automaticamente do Google
+- [x] Buscar foto de perfil automaticamente do Apple
+- [x] Solicitar credenciais Google e Apple ao usuário
+- [x] Testes de autenticação social
+- [x] Sincronizar com Git
