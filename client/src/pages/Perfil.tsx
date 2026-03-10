@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { useAppAuth } from "@/contexts/AuthContext";
-import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Save, X, Upload, Camera } from "lucide-react";
-import { toast } from "sonner";
 import WeddingLayout from "@/components/WeddingLayout";
+import { trpc } from "@/lib/trpc";
+import { Loader2, Upload, Mail, User } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Perfil() {
-  const { user } = useAppAuth();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,52 +18,35 @@ export default function Perfil() {
     email: user?.email || "",
   });
 
-  const updateMutation = trpc.auth.updateProfile.useMutation({
-    onSuccess: (data) => {
-      toast.success("Perfil atualizado com sucesso!");
-      setIsEditing(false);
-    },
-    onError: (error) => {
-      toast.error(error.message || "Erro ao atualizar perfil");
-    },
-  });
-
   const generateUploadUrlMutation = trpc.auth.generateProfilePhotoUploadUrl.useMutation();
+  const uploadPhotoMutation = trpc.auth.uploadProfilePhoto.useMutation();
+  const updateProfileMutation = trpc.auth.updateProfile.useMutation();
 
-  const uploadPhotoMutation = trpc.auth.uploadProfilePhoto.useMutation({
-    onSuccess: (data) => {
-      toast.success("Foto de perfil atualizada com sucesso!");
-    },
-    onError: (error) => {
-      toast.error(error.message || "Erro ao fazer upload da foto");
-    },
-  });
-
-  const handleSave = async () => {
-    if (!formData.name.trim() || !formData.email.trim()) {
-      toast.error("Preencha todos os campos");
-      return;
-    }
-    await updateMutation.mutateAsync({
-      name: formData.name,
-      email: formData.email,
-    });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCancel = () => {
-    setFormData({
-      name: user?.name || "",
-      email: user?.email || "",
-    });
-    setIsEditing(false);
+  const handleSaveProfile = async () => {
+    try {
+      await updateProfileMutation.mutateAsync({
+        name: formData.name,
+        email: formData.email,
+      });
+      toast.success("Perfil atualizado com sucesso!");
+      setIsEditing(false);
+    } catch (error: any) {
+      toast.error(error?.message || "Erro ao atualizar perfil");
+    }
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validações
     if (!file.type.startsWith("image/")) {
-      toast.error("Por favor, selecione uma imagem válida");
+      toast.error("Por favor, selecione uma imagem válida (JPG, PNG, GIF)");
       return;
     }
 
@@ -74,16 +57,18 @@ export default function Perfil() {
 
     setIsUploadingPhoto(true);
     try {
+      // Gerar URL de upload
       const uploadUrlResponse = await generateUploadUrlMutation.mutateAsync({
         fileName: file.name,
         contentType: file.type,
       });
 
-      if (!uploadUrlResponse.success) {
+      if (!uploadUrlResponse.success || !uploadUrlResponse.uploadUrl) {
         toast.error("Erro ao gerar URL de upload");
         return;
       }
 
+      // Upload do arquivo para S3
       const uploadResponse = await fetch(uploadUrlResponse.uploadUrl, {
         method: "PUT",
         headers: {
@@ -93,19 +78,37 @@ export default function Perfil() {
       });
 
       if (!uploadResponse.ok) {
-        toast.error("Erro ao fazer upload da imagem");
+        console.error("Upload failed:", uploadResponse.status, uploadResponse.statusText);
+        toast.error(`Erro ao fazer upload: ${uploadResponse.statusText}`);
         return;
       }
 
+      // Extrair URL da foto (remover query string)
+      const photoUrl = uploadUrlResponse.uploadUrl.split("?")[0];
+
+      // Atualizar perfil com URL da foto
       await uploadPhotoMutation.mutateAsync({
-        photoUrl: uploadUrlResponse.uploadUrl.split("?")[0],
+        photoUrl: photoUrl,
       });
-    } catch (error) {
-      toast.error("Erro ao processar a imagem");
+
+      toast.success("Foto atualizada com sucesso!");
+    } catch (error: any) {
+      console.error("Photo upload error:", error);
+      toast.error(error?.message || "Erro ao processar a imagem");
     } finally {
       setIsUploadingPhoto(false);
     }
   };
+
+  if (!user) {
+    return (
+      <WeddingLayout>
+        <div className="container max-w-2xl py-8">
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </WeddingLayout>
+    );
+  }
 
   return (
     <WeddingLayout>
@@ -115,172 +118,144 @@ export default function Perfil() {
           <p className="text-muted-foreground">Visualize e edite suas informações pessoais</p>
         </div>
 
-        <Card className="border-border/60 mb-6">
-          <CardHeader className="pb-6">
-            <CardTitle>Foto de Perfil</CardTitle>
-            <CardDescription>Atualize sua foto de perfil</CardDescription>
+        {/* Card de Foto de Perfil */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Upload className="w-5 h-5" />
+              Foto de Perfil
+            </CardTitle>
+            <CardDescription>
+              Atualize sua foto de perfil (máximo 5MB)
+            </CardDescription>
           </CardHeader>
-
           <CardContent className="space-y-4">
-            <div className="flex items-center gap-6">
-              <div className="relative w-24 h-24 rounded-full overflow-hidden bg-muted border-2 border-border/60 flex items-center justify-center">
-                {user?.profilePhoto ? (
-                  <img
-                    src={user.profilePhoto}
-                    alt="Foto de perfil"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <Camera className="w-10 h-10 text-muted-foreground" />
-                )}
-              </div>
-
+            <div className="flex items-center gap-4">
+              {user.profilePhoto ? (
+                <img
+                  src={user.profilePhoto}
+                  alt="Foto de perfil"
+                  className="w-20 h-20 rounded-full object-cover border-2 border-rose-200"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-rose-100 flex items-center justify-center">
+                  <User className="w-10 h-10 text-rose-600" />
+                </div>
+              )}
               <div className="flex-1">
-                <label htmlFor="photo-upload" className="block">
-                  <Button
-                    variant="outline"
-                    className="w-full gap-2 cursor-pointer"
+                <label htmlFor="photo-upload" className="cursor-pointer">
+                  <Input
+                    id="photo-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
                     disabled={isUploadingPhoto}
-                    asChild
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={isUploadingPhoto}
+                    onClick={() => document.getElementById("photo-upload")?.click()}
+                    className="w-full"
                   >
-                    <span>
-                      {isUploadingPhoto ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Enviando...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="w-4 h-4" />
-                          Escolher Foto
-                        </>
-                      )}
-                    </span>
+                    {isUploadingPhoto ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-2" />
+                        Selecionar Foto
+                      </>
+                    )}
                   </Button>
                 </label>
-                <input
-                  id="photo-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  disabled={isUploadingPhoto}
-                  className="hidden"
-                />
-                <p className="text-xs text-muted-foreground mt-2">
-                  JPG, PNG ou GIF. Máximo 5MB.
-                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-border/60">
-          <CardHeader className="pb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Informações Pessoais</CardTitle>
-                <CardDescription>Seus dados de conta</CardDescription>
-              </div>
-              {!isEditing && (
-                <Button
-                  variant="outline"
-                  onClick={() => setIsEditing(true)}
-                  className="gap-2"
-                >
-                  Editar
-                </Button>
-              )}
-            </div>
+        {/* Card de Informações Pessoais */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Informações Pessoais
+            </CardTitle>
+            <CardDescription>
+              Atualize seus dados pessoais
+            </CardDescription>
           </CardHeader>
-
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">
-                Nome Completo
-              </label>
-              {isEditing ? (
-                <Input
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Seu nome completo"
-                  className="h-10"
-                />
-              ) : (
-                <div className="px-3 py-2 bg-muted/50 rounded-md text-foreground">
-                  {user?.name || "Não informado"}
-                </div>
-              )}
+              <Label htmlFor="name">Nome</Label>
+              <Input
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className="mt-1"
+              />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">
+              <Label htmlFor="email" className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
                 E-mail
-              </label>
-              {isEditing ? (
-                <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="seu@email.com"
-                  className="h-10"
-                />
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className="mt-1"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              {!isEditing ? (
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-rose-600 hover:bg-rose-700"
+                >
+                  Editar Perfil
+                </Button>
               ) : (
-                <div className="px-3 py-2 bg-muted/50 rounded-md text-foreground">
-                  {user?.email || "Não informado"}
-                </div>
+                <>
+                  <Button
+                    onClick={handleSaveProfile}
+                    disabled={updateProfileMutation.isPending}
+                    className="bg-rose-600 hover:bg-rose-700"
+                  >
+                    {updateProfileMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Salvando...
+                      </>
+                    ) : (
+                      "Salvar Alterações"
+                    )}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setIsEditing(false);
+                      setFormData({
+                        name: user.name || "",
+                        email: user.email || "",
+                      });
+                    }}
+                    variant="outline"
+                  >
+                    Cancelar
+                  </Button>
+                </>
               )}
             </div>
-
-            <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">
-                Perfil
-              </label>
-              <Badge
-                variant={user?.role === "admin" ? "default" : "secondary"}
-                className="w-fit"
-              >
-                {user?.role === "admin" ? "Administrador" : "Usuário"}
-              </Badge>
-            </div>
-
-            <div className="pt-4 border-t border-border/40">
-              <p className="text-sm text-muted-foreground mb-2">
-                <span className="font-medium">ID da Conta:</span> #{user?.id}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                <span className="font-medium">Membro desde:</span> Desde seu cadastro
-              </p>
-            </div>
-
-            {isEditing && (
-              <div className="flex gap-3 pt-4">
-                <Button
-                  onClick={handleSave}
-                  disabled={updateMutation.isPending}
-                  className="flex-1 gap-2"
-                >
-                  {updateMutation.isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Salvando...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4" />
-                      Salvar
-                    </>
-                  )}
-                </Button>
-                <Button
-                  onClick={handleCancel}
-                  variant="outline"
-                  className="flex-1 gap-2"
-                >
-                  <X className="w-4 h-4" />
-                  Cancelar
-                </Button>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>

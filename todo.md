@@ -115,3 +115,11 @@
 - [x] Atualizar procedure uploadProfilePhoto para usar S3
 - [x] Remover armazenamento base64 de fotos
 - [x] Testes de integração S3
+
+## Correção de Upload e OAuth - Fase 7
+- [x] Debugar e corrigir erro de upload de imagem
+- [ ] Implementar autenticação OAuth com Google
+- [ ] Implementar autenticação OAuth com Apple
+- [ ] Buscar foto de perfil do Google automaticamente
+- [ ] Buscar foto de perfil do Apple automaticamente
+- [ ] Testes de OAuth e upload de foto
