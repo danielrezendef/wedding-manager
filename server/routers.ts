@@ -22,6 +22,7 @@ import {
   updateAgendamento,
   updateCobranca,
   updateUserRole,
+  updateUserProfile,
 } from "./db";
 import { ENV } from "./_core/env";
 
@@ -108,6 +109,20 @@ const authRouter = router({
     ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
     return { success: true } as const;
   }),
+
+  updateProfile: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(2).optional(),
+        email: z.string().email().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+      await updateUserProfile(ctx.user.id, input);
+      const updated = await getUserById(ctx.user.id);
+      return { success: true, user: updated };
+    }),
 });
 
 // ─── Agendamentos Router ──────────────────────────────────────────────────────

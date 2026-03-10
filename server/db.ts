@@ -123,6 +123,16 @@ export async function deleteUser(userId: number) {
   await db.delete(users).where(eq(users.id, userId));
 }
 
+export async function updateUserProfile(userId: number, data: { name?: string; email?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const updates: Record<string, unknown> = {};
+  if (data.name !== undefined) updates.name = data.name;
+  if (data.email !== undefined) updates.email = data.email;
+  if (Object.keys(updates).length === 0) return;
+  await db.update(users).set(updates).where(eq(users.id, userId));
+}
+
 // ─── Agendamentos ─────────────────────────────────────────────────────────────
 export type AgendamentoFilters = {
   userId?: number;

@@ -93,3 +93,10 @@
 - [x] Adicionar UI para login com Google (em breve)
 - [x] Adicionar UI para login com Apple (em breve)
 - [x] Testar fluxo de login social
+
+## Página de Perfil do Usuário - Fase 4
+- [x] Criar router tRPC para atualizar perfil
+- [x] Criar página de Perfil com formulário
+- [x] Adicionar rota no App.tsx
+- [x] Adicionar link no menu/sidebar
+- [x] Testes de atualização de perfil
