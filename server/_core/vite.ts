@@ -4,7 +4,6 @@ import { type Server } from "http";
 import { nanoid } from "nanoid";
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import viteConfig from "../../vite.config";
 
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
@@ -12,6 +11,8 @@ export async function setupVite(app: Express, server: Server) {
     hmr: { server },
     allowedHosts: true as const,
   };
+
+  const { default: viteConfig } = await import("../../vite.config");
 
   const vite = await createViteServer({
     ...viteConfig,
@@ -50,21 +51,18 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   const dirname = import.meta.dirname || process.cwd();
-  let distPath = "/app/client/dist";
-  
-  if (dirname && dirname !== "undefined") {
-    distPath = path.resolve(dirname, "../client/dist");
-  }
-  
-  if (!fs.existsSync(distPath)) {
-    console.warn(
-      `Could not find the build directory: ${distPath}, using fallback path`
+  const candidatePaths = [
+    path.resolve(dirname, "public"),
+    path.resolve(dirname, "../public"),
+    "/app/dist/public",
+  ];
+
+  const distPath = candidatePaths.find(candidate => fs.existsSync(candidate));
+
+  if (!distPath) {
+    throw new Error(
+      `Build directory not found in any known location: ${candidatePaths.join(", ")}`
     );
-    distPath = "/app/client/dist";
-    if (!fs.existsSync(distPath)) {
-      console.error("Build directory not found in any location");
-      return;
-    }
   }
 
   app.use(express.static(distPath));
