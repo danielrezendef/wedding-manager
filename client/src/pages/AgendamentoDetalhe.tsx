@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useLocation } from "wouter";
+import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAppAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +22,7 @@ import {
   BadgeCheck,
   ChevronDown,
   Download,
+  Loader2,
 } from "lucide-react";
 import {
   Select,
@@ -59,6 +60,7 @@ export default function AgendamentoDetalhe() {
   const [showEdit, setShowEdit] = useState(false);
   const [showCobranca, setShowCobranca] = useState(false);
   const [isChangingStatus, setIsChangingStatus] = useState(false);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const updateStatusMutation = trpc.agendamentos.updateStatus.useMutation({
     onSuccess: () => {
@@ -109,6 +111,54 @@ export default function AgendamentoDetalhe() {
   const handleStatusChange = (newStatus: string) => {
     setIsChangingStatus(true);
     updateStatusMutation.mutate({ id, status: newStatus as any });
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!data || !cobranca) {
+      toast.error("Dados incompletos para gerar PDF");
+      return;
+    }
+
+    try {
+      setIsGeneratingPDF(true);
+      const { PDFRecibo } = await import("@/components/PDFRecibo");
+      const { pdf } = await import("@react-pdf/renderer");
+      
+      const doc = (
+        <PDFRecibo
+          agendamento={{
+            ...data,
+            endereco: data.enderecoCerimonia,
+            valorServico: Number(data.valorServico),
+          } as any}
+          cobranca={{
+            ...cobranca,
+            valor: Number(cobranca.valor),
+            responsavel: cobranca.nomeResponsavel,
+            endereco: cobranca.enderecoCompleto,
+          }}
+          nomeEmpresa="Wedding Manager"
+        />
+      );
+      const blob = await pdf(doc).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `recibo-${data.id}-${new Date().toISOString().split("T")[0]}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success("PDF gerado com sucesso!");
+      
+      // Atualizar status para "cobranca" quando emitir PDF
+      if (data.status !== "cobranca") {
+        updateStatusMutation.mutate({ id, status: "cobranca" });
+      }
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast.error("Erro ao gerar PDF");
+    } finally {
+      setIsGeneratingPDF(false);
+    }
   };
 
   return (
@@ -194,14 +244,9 @@ export default function AgendamentoDetalhe() {
                   </Button>
                 )}
                 {canEditCobranca && (
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setShowCobranca(true)}>
-                      <Pencil className="w-3.5 h-3.5 mr-1.5" /> Editar cobrança
-                    </Button>
-                    <Button variant="secondary" size="sm" onClick={() => setShowCobranca(true)}>
-                      <Download className="w-3.5 h-3.5 mr-1.5" /> Recibo
-                    </Button>
-                  </div>
+                  <Button variant="outline" size="sm" onClick={() => setShowCobranca(true)}>
+                    <Pencil className="w-3.5 h-3.5 mr-1.5" /> Editar cobrança
+                  </Button>
                 )}
               </div>
             </CardHeader>
@@ -225,6 +270,25 @@ export default function AgendamentoDetalhe() {
                   </div>
                   <InfoItem icon={<MapPin className="w-4 h-4" />} label="Endereço" value={cobranca.enderecoCompleto} />
                   <InfoItem icon={<FileText className="w-4 h-4" />} label="Condição de Pagamento" value={cobranca.condicaoPagamento} />
+                  <div className="pt-3 border-t border-border/50">
+                    <Button 
+                      variant="secondary" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={handleDownloadPDF}
+                      disabled={isGeneratingPDF}
+                    >
+                      {isGeneratingPDF ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Gerando...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-3.5 h-3.5 mr-1.5" /> Baixar Recibo em PDF
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8">

@@ -38,9 +38,10 @@ type Props = {
   agendamentoId: number;
   cobranca?: any;
   agendamento?: any;
+  onDownloadPDF?: () => void;
 };
 
-export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId, cobranca, agendamento }: Props) {
+export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId, cobranca, agendamento, onDownloadPDF }: Props) {
   const isEdit = !!cobranca;
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
