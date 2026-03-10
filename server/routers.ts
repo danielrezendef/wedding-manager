@@ -192,6 +192,19 @@ const agendamentosRouter = router({
       return updateAgendamento(id, updateData);
     }),
 
+  updateStatus: adminProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        status: z.enum(["orcamento", "confirmado", "pendente", "concluido"]),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const ag = await getAgendamentoById(input.id);
+      if (!ag) throw new TRPCError({ code: "NOT_FOUND" });
+      return updateAgendamento(input.id, { status: input.status });
+    }),
+
   delete: adminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {

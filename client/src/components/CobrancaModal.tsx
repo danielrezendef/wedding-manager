@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { pdf } from "@react-pdf/renderer";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, CreditCard } from "lucide-react";
+import { Loader2, CreditCard, Download } from "lucide-react";
+import { PDFRecibo } from "./PDFRecibo";
 
 const schema = z.object({
   nomeResponsavel: z.string().min(1, "Nome obrigatório"),
@@ -35,10 +37,12 @@ type Props = {
   onSuccess: () => void;
   agendamentoId: number;
   cobranca?: any;
+  agendamento?: any;
 };
 
-export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId, cobranca }: Props) {
+export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId, cobranca, agendamento }: Props) {
   const isEdit = !!cobranca;
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const {
     register,
@@ -54,10 +58,10 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
   useEffect(() => {
     if (cobranca) {
       reset({
-        nomeResponsavel: cobranca.nomeResponsavel,
+        nomeResponsavel: cobranca.nomeResponsavel || cobranca.responsavel,
         cpf: cobranca.cpf,
-        enderecoCompleto: cobranca.enderecoCompleto,
-        valor: cobranca.valor,
+        enderecoCompleto: cobranca.enderecoCompleto || cobranca.endereco,
+        valor: cobranca.valor?.toString(),
         condicaoPagamento: cobranca.condicaoPagamento,
         formaPagamento: cobranca.formaPagamento,
       });
@@ -94,6 +98,41 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
 
   const isPending = createMutation.isPending || updateMutation.isPending;
   const formaPagamento = watch("formaPagamento");
+
+  const handleDownloadPDF = async () => {
+    if (!agendamento || !cobranca) {
+      toast.error("Dados incompletos para gerar PDF");
+      return;
+    }
+
+    try {
+      setIsGeneratingPDF(true);
+      const doc = (
+        <PDFRecibo
+          agendamento={agendamento}
+          cobranca={{
+            ...cobranca,
+            responsavel: cobranca.nomeResponsavel || cobranca.responsavel,
+            endereco: cobranca.enderecoCompleto || cobranca.endereco,
+          }}
+          nomeEmpresa="Wedding Manager"
+        />
+      );
+      const blob = await pdf(doc).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `recibo-${agendamento.id}-${new Date().toISOString().split("T")[0]}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success("PDF gerado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast.error("Erro ao gerar PDF");
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
 
   // CPF mask
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -193,10 +232,24 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isPending || isGeneratingPDF}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isPending}>
+            {isEdit && cobranca && (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleDownloadPDF}
+                disabled={isPending || isGeneratingPDF}
+              >
+                {isGeneratingPDF ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Gerando...</>
+                ) : (
+                  <><Download className="w-4 h-4 mr-2" /> Baixar PDF</>
+                )}
+              </Button>
+            )}
+            <Button type="submit" disabled={isPending || isGeneratingPDF}>
               {isPending ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {isEdit ? "Salvando..." : "Confirmar..."}</>
               ) : (

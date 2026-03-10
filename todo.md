@@ -76,3 +76,10 @@
 - [x] Testes de autenticação
 - [x] Testes de agendamentos
 - [x] Testes de cobranças
+
+## Novos Recursos - Fase 2
+- [x] Instalar @react-pdf/renderer
+- [x] Criar componente PDFRecibo
+- [x] Implementar botão de download PDF no modal de cobrança
+- [x] Implementar alteração de status para admins
+- [x] Adicionar testes para PDF e alteração de status

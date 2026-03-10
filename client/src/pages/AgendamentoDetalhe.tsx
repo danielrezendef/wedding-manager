@@ -20,7 +20,15 @@ import {
   Heart,
   Phone,
   BadgeCheck,
+  ChevronDown,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import StatusBadge from "@/components/StatusBadge";
@@ -49,6 +57,20 @@ export default function AgendamentoDetalhe() {
 
   const [showEdit, setShowEdit] = useState(false);
   const [showCobranca, setShowCobranca] = useState(false);
+  const [isChangingStatus, setIsChangingStatus] = useState(false);
+
+  const updateStatusMutation = trpc.agendamentos.updateStatus.useMutation({
+    onSuccess: () => {
+      toast.success("Status atualizado com sucesso!");
+      utils.agendamentos.byId.invalidate({ id });
+      utils.dashboard.stats.invalidate();
+      setIsChangingStatus(false);
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Erro ao atualizar status");
+      setIsChangingStatus(false);
+    },
+  });
 
   const { data, isLoading, error } = trpc.agendamentos.byId.useQuery(
     { id },
@@ -82,6 +104,11 @@ export default function AgendamentoDetalhe() {
   const cobranca = data.cobranca;
   const canAddCobranca = data.status === "orcamento" && !cobranca;
   const canEditCobranca = !!cobranca;
+
+  const handleStatusChange = (newStatus: string) => {
+    setIsChangingStatus(true);
+    updateStatusMutation.mutate({ id, status: newStatus as any });
+  };
 
   return (
     <div className="space-y-5 page-enter">
@@ -217,7 +244,21 @@ export default function AgendamentoDetalhe() {
             <CardContent className="space-y-3">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Status atual</p>
-                <StatusBadge status={data.status} />
+                {isAdmin ? (
+                  <Select value={data.status} onValueChange={handleStatusChange} disabled={isChangingStatus}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="orcamento">Orçamento</SelectItem>
+                      <SelectItem value="confirmado">Confirmado</SelectItem>
+                      <SelectItem value="pendente">Pendente</SelectItem>
+                      <SelectItem value="concluido">Concluído</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <StatusBadge status={data.status} />
+                )}
               </div>
               <Separator />
               <div>
@@ -285,6 +326,7 @@ export default function AgendamentoDetalhe() {
         onClose={() => setShowCobranca(false)}
         agendamentoId={id}
         cobranca={cobranca}
+        agendamento={data}
         onSuccess={() => {
           utils.agendamentos.byId.invalidate({ id });
           utils.dashboard.stats.invalidate();
