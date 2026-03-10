@@ -115,11 +115,25 @@ const authRouter = router({
       z.object({
         name: z.string().min(2).optional(),
         email: z.string().email().optional(),
+        profilePhoto: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
       await updateUserProfile(ctx.user.id, input);
+      const updated = await getUserById(ctx.user.id);
+      return { success: true, user: updated };
+    }),
+
+  uploadProfilePhoto: protectedProcedure
+    .input(
+      z.object({
+        photoUrl: z.string().url("URL da foto invalida"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+      await updateUserProfile(ctx.user.id, { profilePhoto: input.photoUrl });
       const updated = await getUserById(ctx.user.id);
       return { success: true, user: updated };
     }),

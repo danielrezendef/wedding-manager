@@ -5,6 +5,7 @@ export type AuthUser = {
   id: number;
   name: string | null;
   email: string | null;
+  profilePhoto?: string | null;
   role: "user" | "admin";
 };
 

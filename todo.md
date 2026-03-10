@@ -100,3 +100,11 @@
 - [x] Adicionar rota no App.tsx
 - [x] Adicionar link no menu/sidebar
 - [x] Testes de atualização de perfil
+
+## Upload de Foto de Perfil - Fase 5
+- [x] Adicionar campo profilePhoto no schema users
+- [x] Criar router tRPC para upload de foto
+- [x] Implementar componente de upload no frontend
+- [x] Integrar foto no menu lateral
+- [x] Integrar foto na página de Perfil
+- [x] Testes de upload de foto

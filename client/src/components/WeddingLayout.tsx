@@ -219,6 +219,9 @@ function WeddingLayoutContent({
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-accent/60 transition-colors w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Avatar className="h-8 w-8 shrink-0 border border-primary/20">
+                    {user?.profilePhoto && (
+                      <img src={user.profilePhoto} alt={user.name || "Usuário"} className="w-full h-full object-cover" />
+                    )}
                     <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">
                       {initials}
                     </AvatarFallback>
