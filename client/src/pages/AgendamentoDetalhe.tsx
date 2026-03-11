@@ -138,6 +138,16 @@ export default function AgendamentoDetalhe() {
             endereco: cobranca.enderecoCompleto,
           }}
           nomeEmpresa="Wedding Manager"
+          contratada={{
+            cpf: "135.439.746-02",
+            nome: "Ana Laura Souza",
+            cidadeAssinatura: "Itaúna - MG",
+            endereco: "Rua Vovó Maria Drumond, nº 83, Bairro Murilo Gonçalves, Itaúna - MG",
+            dataAssinatura: new Date(),
+            foro: "Itaúna - MG",
+  }}
+  testemunha1={{ nome: "Maria da Silva", cpf: "111.111.111-11" }}
+  testemunha2={{ nome: "João dos Santos", cpf: "222.222.222-22" }}
         />
       );
       const blob = await pdf(doc).toBlob();

@@ -32,6 +32,25 @@ interface PDFReciboProps {
     createdAt: Date;
   };
   nomeEmpresa: string;
+
+  contratada: {
+    nome: string;
+    cpf: string;
+    endereco: string;
+    cidadeAssinatura: string;
+    foro: string;
+    dataAssinatura?: Date;
+  };
+
+  testemunha1?: {
+    nome?: string;
+    cpf?: string;
+  };
+
+  testemunha2?: {
+    nome?: string;
+    cpf?: string;
+  };
 }
 
 const styles = StyleSheet.create({
@@ -142,6 +161,115 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#c41e3a",
   },
+
+  // CONTRATO
+  contractPage: {
+    paddingTop: 42,
+    paddingBottom: 42,
+    paddingHorizontal: 52,
+    backgroundColor: "#ffffff",
+    fontFamily: "Helvetica",
+  },
+  contractTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    textTransform: "uppercase",
+    marginBottom: 24,
+    color: "#000000",
+  },
+  contractSectionTitle: {
+    fontSize: 11,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    marginTop: 12,
+    marginBottom: 8,
+    color: "#000000",
+  },
+  paragraph: {
+    fontSize: 10.5,
+    lineHeight: 1.6,
+    textAlign: "justify",
+    marginBottom: 10,
+    color: "#000000",
+  },
+  clause: {
+    fontSize: 10.5,
+    lineHeight: 1.6,
+    textAlign: "justify",
+    marginBottom: 12,
+    color: "#000000",
+  },
+  bold: {
+    fontWeight: "bold",
+  },
+  dateText: {
+    marginTop: 18,
+    fontSize: 10.5,
+    textAlign: "left",
+    color: "#000000",
+  },
+  signaturesContainer: {
+    marginTop: 34,
+  },
+  signatureRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  signatureBlock: {
+    width: "45%",
+    alignItems: "center",
+  },
+  signatureLine: {
+    width: "100%",
+    borderTopWidth: 1,
+    borderTopColor: "#000000",
+    marginBottom: 6,
+  },
+  signatureName: {
+    fontSize: 10,
+    textAlign: "center",
+    textTransform: "uppercase",
+  },
+  signatureRole: {
+    fontSize: 9,
+    textAlign: "center",
+    marginTop: 2,
+  },
+  witnessContainer: {
+    marginTop: 34,
+  },
+  witnessTitle: {
+    fontSize: 11,
+    fontWeight: "bold",
+    marginBottom: 16,
+    textTransform: "uppercase",
+  },
+  witnessBlock: {
+    marginBottom: 22,
+  },
+  witnessLine: {
+    width: "100%",
+    borderTopWidth: 1,
+    borderTopColor: "#000000",
+    marginBottom: 5,
+  },
+  witnessText: {
+    fontSize: 10,
+    textTransform: "uppercase",
+  },
+  footerNoteTitle: {
+    marginTop: 14,
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+  footerNote: {
+    marginTop: 4,
+    fontSize: 9.5,
+    lineHeight: 1.5,
+    textAlign: "justify",
+  },
 });
 
 const getStatusColor = (status: string) => {
@@ -163,7 +291,7 @@ const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
     orcamento: "Orçamento",
     confirmado: "Confirmado",
-    cobranca: "Pagamento",
+    pagamento: "Pagamento",
     concluido: "Concluído",
   };
   return labels[status] || status;
@@ -180,19 +308,22 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
   agendamento,
   cobranca,
   nomeEmpresa,
+  contratada,
+  testemunha1,
+  testemunha2,
 }) => {
   const dataEmissao = new Date();
+  const dataAssinatura = contratada.dataAssinatura || cobranca.createdAt || new Date();
 
   return (
     <Document>
+      {/* RECIBO */}
       <Page size="A4" style={styles.page}>
-        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>{nomeEmpresa}</Text>
           <Text style={styles.subtitle}>Recibo de Cobrança - Serviço de Cerimonial</Text>
         </View>
 
-        {/* Informações do Recibo */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Informações do Recibo</Text>
           <View style={styles.row}>
@@ -213,7 +344,6 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
           </View>
         </View>
 
-        {/* Dados do Evento */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Dados do Evento</Text>
           <View style={styles.row}>
@@ -242,7 +372,6 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
           </View>
         </View>
 
-        {/* Dados do Responsável Financeiro */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Responsável Financeiro</Text>
           <View style={styles.row}>
@@ -259,7 +388,6 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
           </View>
         </View>
 
-        {/* Dados de Cobrança */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Dados de Cobrança</Text>
           <View style={styles.row}>
@@ -280,7 +408,6 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
           </View>
         </View>
 
-        {/* Total */}
         <View style={styles.totalSection}>
           <View style={styles.totalRow}>
             <Text style={{ fontSize: 12, fontWeight: "bold" }}>TOTAL A PAGAR:</Text>
@@ -288,7 +415,6 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
           </View>
         </View>
 
-        {/* Footer */}
         <View style={styles.footer}>
           <Text>
             Documento emitido em{" "}
@@ -298,6 +424,154 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
             Este recibo é válido como comprovante de cobrança do serviço de cerimonial.
           </Text>
         </View>
+      </Page>
+
+      {/* CONTRATO - PÁGINA 1 */}
+      <Page size="A4" style={styles.contractPage}>
+        <Text style={styles.contractTitle}>
+          CONTRATO DE PRESTAÇÃO DE{"\n"}SERVIÇOS MUSICAIS
+        </Text>
+
+        <Text style={styles.contractSectionTitle}>
+          IDENTIFICAÇÃO DAS PARTES CONTRATANTES
+        </Text>
+
+        <Text style={styles.paragraph}>
+          <Text style={styles.bold}>CONTRATANTE:</Text>{" "}
+          <Text style={styles.bold}>{cobranca.responsavel}</Text>, inscrito(a) no CPF sob o nº{" "}
+          <Text style={styles.bold}>{cobranca.cpf}</Text>, residente e domiciliado(a) em{" "}
+          <Text style={styles.bold}>{cobranca.endereco}</Text>.
+        </Text>
+
+        <Text style={styles.paragraph}>
+          <Text style={styles.bold}>CONTRATADA:</Text>{" "}
+          <Text style={styles.bold}>{contratada.nome}</Text>, inscrito(a) no CPF sob o nº{" "}
+          <Text style={styles.bold}>{contratada.cpf}</Text>, residente e domiciliado(a) em{" "}
+          <Text style={styles.bold}>{contratada.endereco}</Text>.
+        </Text>
+
+        <Text style={styles.paragraph}>
+          As partes acima identificadas têm, entre si, justo e acertado o presente
+          Contrato de Prestação de Serviços Musicais, que se regerá pelas cláusulas
+          seguintes e pelas condições descritas neste instrumento.
+        </Text>
+
+        <Text style={styles.contractSectionTitle}>DO OBJETO DO CONTRATO</Text>
+        <Text style={styles.clause}>
+          <Text style={styles.bold}>CLÁUSULA 1ª.</Text> O presente contrato tem como
+          objeto a prestação de serviços musicais na cerimônia de{" "}
+          <Text style={styles.bold}>
+            {agendamento.nomeNoiva} e {agendamento.nomeNoivo}
+          </Text>
+          , por parte da CONTRATADA à CONTRATANTE, no evento a ser realizado no dia{" "}
+          <Text style={styles.bold}>
+            {format(new Date(agendamento.dataEvento), "dd/MM/yyyy", { locale: ptBR })}
+          </Text>
+          .
+        </Text>
+
+        <Text style={styles.contractSectionTitle}>DAS OBRIGAÇÕES DA CONTRATANTE</Text>
+        <Text style={styles.clause}>
+          <Text style={styles.bold}>CLÁUSULA 2ª.</Text> Assume a CONTRATANTE os riscos
+          sobre a execução do evento, responsabilizando-se por eventuais danos que
+          surgirem decorrentes da realização do mesmo.
+        </Text>
+
+        <Text style={styles.contractSectionTitle}>DO PAGAMENTO</Text>
+        <Text style={styles.clause}>
+          <Text style={styles.bold}>CLÁUSULA 3ª.</Text> A CONTRATANTE pagará à
+          CONTRATADA a quantia de{" "}
+          <Text style={styles.bold}>{formatCurrency(cobranca.valor)}</Text> em razão da
+          prestação dos serviços musicais. Este pagamento será realizado em{" "}
+          <Text style={styles.bold}>{cobranca.condicaoPagamento}</Text>, por meio de{" "}
+          <Text style={styles.bold}>{cobranca.formaPagamento}</Text>.
+        </Text>
+
+        <Text style={styles.contractSectionTitle}>DO EVENTO</Text>
+        <Text style={styles.clause}>
+          <Text style={styles.bold}>CLÁUSULA 4ª.</Text> O evento se realizará em{" "}
+          <Text style={styles.bold}>{agendamento.endereco}</Text>, às{" "}
+          <Text style={styles.bold}>{agendamento.horario}</Text> horas do dia{" "}
+          <Text style={styles.bold}>
+            {format(new Date(agendamento.dataEvento), "dd/MM/yyyy", { locale: ptBR })}
+          </Text>
+          , devendo a CONTRATADA comparecer ao local com 1 (uma) hora de antecedência
+          para a execução das atividades previstas neste instrumento.
+        </Text>
+
+        <Text style={styles.contractSectionTitle}>DOS EQUIPAMENTOS</Text>
+        <Text style={styles.clause}>
+          <Text style={styles.bold}>CLÁUSULA 5ª.</Text> A CONTRATADA fornecerá todo
+          equipamento de som necessário para a realização da apresentação musical,
+          comprometendo-se a CONTRATANTE a respeitar as condições fundamentais para o
+          bom funcionamento dos equipamentos, tais como energia elétrica no local e
+          acesso ao local antes do horário para montagem dos mesmos.
+        </Text>
+      </Page>
+
+      {/* CONTRATO - PÁGINA 2 */}
+      <Page size="A4" style={styles.contractPage}>
+        <Text style={styles.contractSectionTitle}>DA RESCISÃO</Text>
+
+        <Text style={styles.clause}>
+          <Text style={styles.bold}>CLÁUSULA 6ª.</Text> O presente contrato será
+          rescindido caso uma das partes descumpra o pactuado nas cláusulas deste
+          instrumento.
+        </Text>
+
+        <Text style={styles.clause}>
+          <Text style={styles.bold}>CLÁUSULA 7ª.</Text> Caso ocorra algum impedimento à
+          realização da cerimônia, ligado a caso fortuito ou força maior, as partes
+          deverão pactuar outra data, devendo tal ajuste ser feito por escrito e
+          endereçado exclusivamente à CONTRATADA.
+        </Text>
+
+        <Text style={styles.contractSectionTitle}>DA MULTA</Text>
+        <Text style={styles.clause}>
+          <Text style={styles.bold}>CLÁUSULA 8ª.</Text> A parte que der causa à
+          rescisão do presente pagará multa de 50% (cinquenta por cento) do valor total
+          do contrato.
+        </Text>
+
+        <Text style={styles.contractSectionTitle}>DO FORO</Text>
+        <Text style={styles.clause}>
+          <Text style={styles.bold}>CLÁUSULA 9ª.</Text> Para dirimir quaisquer
+          controvérsias oriundas do presente contrato, as partes elegem o foro da
+          comarca de <Text style={styles.bold}>{contratada.foro}</Text>.
+        </Text>
+
+        <Text style={styles.paragraph}>
+          Por estarem assim justos e contratados, firmam o presente instrumento em
+          duas vias de igual teor, juntamente com 2 (duas) testemunhas.
+        </Text>
+
+        <Text style={styles.dateText}>
+          {contratada.cidadeAssinatura},{" "}
+          {format(new Date(dataAssinatura), "dd 'de' MMMM 'de' yyyy", {
+            locale: ptBR,
+          })}
+          .
+        </Text>
+
+        <View style={styles.signaturesContainer}>
+          <View style={styles.signatureRow}>
+            <View style={styles.signatureBlock}>
+              <View style={styles.signatureLine} />
+              <Text style={styles.signatureName}>{cobranca.responsavel}</Text>
+              <Text style={styles.signatureRole}>CONTRATANTE</Text>
+            </View>
+
+            <View style={styles.signatureBlock}>
+              <View style={styles.signatureLine} />
+              <Text style={styles.signatureName}>{contratada.nome}</Text>
+              <Text style={styles.signatureRole}>CONTRATADA</Text>
+            </View>
+          </View>
+        </View>
+        <Text style={styles.footerNoteTitle}>Nota</Text>
+        <Text style={styles.footerNote}>
+          Este contrato rege-se pelo disposto nos artigos 593 a 609 do Código Civil.
+        </Text>
       </Page>
     </Document>
   );
