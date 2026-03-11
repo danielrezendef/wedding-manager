@@ -36,6 +36,13 @@
       "when": 1773242806636,
       "tag": "0004_slimy_proudstar",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1773300000000,
+      "tag": "0005_solid_mercury",
+      "breakpoints": true
     }
   ]
 }
