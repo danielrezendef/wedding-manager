@@ -108,7 +108,7 @@ export default function Agendamentos() {
         </div>
         <Button onClick={() => setShowCreate(true)} className="gap-2">
           <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">Novo agendamento</span>
+          <span className="hidden sm:inline">Incluir Agendamento</span>
           <span className="sm:hidden">Novo</span>
         </Button>
       </div>

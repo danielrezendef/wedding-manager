@@ -170,7 +170,7 @@ export default function AgendamentoModal({ open, onClose, onSuccess, agendamento
                   <SelectContent>
                     <SelectItem value="orcamento">Orçamento</SelectItem>
                     <SelectItem value="confirmado">Confirmado</SelectItem>
-                    <SelectItem value="cobranca">Cobrança</SelectItem>
+                    <SelectItem value="pagamento">Pagamento</SelectItem>
                     <SelectItem value="concluido">Concluído</SelectItem>
                   </SelectContent>
                 </Select>
