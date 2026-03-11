@@ -38,7 +38,7 @@ export const agendamentos = mysqlTable("agendamentos", {
   horario: time("horario").notNull(),
   enderecoCerimonia: text("enderecoCerimonia").notNull(),
   valorServico: decimal("valorServico", { precision: 10, scale: 2 }).notNull(),
-  status: mysqlEnum("status", ["orcamento", "confirmado", "cobranca", "concluido"])
+  status: mysqlEnum("status", ["orcamento", "confirmado", "pagamento", "concluido"])
     .default("orcamento")
     .notNull(),
   observacoes: text("observacoes"),

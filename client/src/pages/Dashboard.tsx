@@ -53,7 +53,7 @@ export default function Dashboard() {
   const statusMap: Record<string, { label: string; color: string }> = {
     orcamento: { label: "Orçamento", color: "oklch(0.55 0.10 220)" },
     confirmado: { label: "Confirmado", color: "oklch(0.55 0.15 145)" },
-    cobranca: { label: "Cobrança", color: "oklch(0.60 0.15 60)" },
+    pagamento: { label: "Pagamento", color: "oklch(0.60 0.15 60)" },
     concluido: { label: "Concluído", color: "oklch(0.45 0.02 30)" },
   };
 

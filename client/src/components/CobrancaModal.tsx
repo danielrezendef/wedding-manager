@@ -137,9 +137,9 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
       URL.revokeObjectURL(url);
       toast.success("PDF gerado com sucesso!");
       
-      // Atualizar status para "cobranca" quando emitir PDF
-      if (agendamento.status !== "cobranca") {
-        updateStatusMutation.mutate({ id: agendamento.id, status: "cobranca" });
+      // Atualizar status para "pagamento" quando emitir PDF
+      if (agendamento.status !== "pagamento") {
+        updateStatusMutation.mutate({ id: agendamento.id, status: "pagamento" });
       }
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);

@@ -26,7 +26,7 @@ const schema = z.object({
   horario: z.string().min(1, "Horário obrigatório"),
   enderecoCerimonia: z.string().min(1, "Endereço obrigatório"),
   valorServico: z.string().min(1, "Valor obrigatório"),
-  status: z.enum(["orcamento", "confirmado", "cobranca", "concluido"]).optional(),
+  status: z.enum(["orcamento", "confirmado", "pagamento", "concluido"]).optional(),
   observacoes: z.string().optional(),
 });
 

@@ -29,6 +29,13 @@
       "when": 1773147622632,
       "tag": "0003_hard_sinister_six",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1773242806636,
+      "tag": "0004_slimy_proudstar",
+      "breakpoints": true
     }
   ]
 }

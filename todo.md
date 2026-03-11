@@ -139,3 +139,12 @@
 - [x] Remover Apple JS SDK do index.html
 - [ ] Remover secret VITE_APPLE_CLIENT_ID
 - [x] Testes e sincronização com Git
+
+## Alteração de Status - Fase 10
+- [x] Alterar enum de status "Cobrança" para "Pagamento" no schema
+- [x] Executar pnpm db:push para migrar banco
+- [x] Atualizar backend (routers e db helpers)
+- [x] Atualizar frontend (componentes, páginas, labels)
+- [x] Atualizar testes
+- [x] Build e testes passando
+- [ ] Sincronizar com Git

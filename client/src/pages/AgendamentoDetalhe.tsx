@@ -149,9 +149,9 @@ export default function AgendamentoDetalhe() {
       URL.revokeObjectURL(url);
       toast.success("PDF gerado com sucesso!");
       
-      // Atualizar status para "cobranca" quando emitir PDF
-      if (data.status !== "cobranca") {
-        updateStatusMutation.mutate({ id, status: "cobranca" });
+      // Atualizar status para "pagamento" quando emitir PDF
+      if (data.status !== "pagamento") {
+        updateStatusMutation.mutate({ id, status: "pagamento" });
       }
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
@@ -322,7 +322,7 @@ export default function AgendamentoDetalhe() {
                     <SelectContent>
                       <SelectItem value="orcamento">Orçamento</SelectItem>
                       <SelectItem value="confirmado">Confirmado</SelectItem>
-                      <SelectItem value="cobranca">Cobrança</SelectItem>
+                      <SelectItem value="pagamento">Pagamento</SelectItem>
                       <SelectItem value="concluido">Concluído</SelectItem>
                     </SelectContent>
                   </Select>
@@ -356,11 +356,11 @@ export default function AgendamentoDetalhe() {
                 {[
                   { status: "orcamento", label: "Orçamento" },
                   { status: "confirmado", label: "Confirmado" },
-                  { status: "cobranca", label: "Cobrança" },
+                  { status: "pagamento", label: "Pagamento" },
                   { status: "concluido", label: "Concluído" },
                 ].map((step, idx) => {
                   const isActive = data.status === step.status;
-                  const statusOrder = ["orcamento", "confirmado", "cobranca", "concluido"];
+                  const statusOrder = ["orcamento", "confirmado", "pagamento", "concluido"];
                   const currentIdx = statusOrder.indexOf(data.status);
                   const stepIdx = statusOrder.indexOf(step.status);
                   const isDone = stepIdx < currentIdx;

@@ -164,7 +164,7 @@ export async function updateUserProfile(userId: number, data: { name?: string; e
 // ─── Agendamentos ─────────────────────────────────────────────────────────────
 export type AgendamentoFilters = {
   userId?: number;
-  status?: "orcamento" | "confirmado" | "cobranca" | "concluido";
+  status?: "orcamento" | "confirmado" | "pagamento" | "concluido";
   nomeNoiva?: string;
   nomeNoivo?: string;
   dataInicio?: string;
@@ -244,7 +244,7 @@ export async function updateAgendamento(
     horario: string;
     enderecoCerimonia: string;
     valorServico: string;
-    status: "orcamento" | "confirmado" | "cobranca" | "concluido";
+    status: "orcamento" | "confirmado" | "pagamento" | "concluido";
     observacoes: string;
   }>
 ) {

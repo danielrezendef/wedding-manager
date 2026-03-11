@@ -148,7 +148,7 @@ export default function Agendamentos() {
                 <SelectItem value="all">Todos os status</SelectItem>
                 <SelectItem value="orcamento">Orçamento</SelectItem>
                 <SelectItem value="confirmado">Confirmado</SelectItem>
-                <SelectItem value="cobranca">Cobrança</SelectItem>
+                <SelectItem value="pagamento">Pagamento</SelectItem>
                 <SelectItem value="concluido">Concluído</SelectItem>
               </SelectContent>
             </Select>
