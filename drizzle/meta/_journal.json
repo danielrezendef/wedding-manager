@@ -43,6 +43,13 @@
       "when": 1773300000000,
       "tag": "0005_solid_mercury",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1773245892287,
+      "tag": "0006_legal_medusa",
+      "breakpoints": true
     }
   ]
 }
