@@ -1,5 +1,11 @@
--- First, update all existing 'cobranca' values to 'pagamento'
-UPDATE `agendamentos` SET `status` = 'pagamento' WHERE `status` = 'cobranca';
+ALTER TABLE `agendamentos`
+MODIFY COLUMN `status` enum('orcamento','confirmado','cobranca','pagamento','concluido')
+NOT NULL DEFAULT 'orcamento';
 
--- Then modify the enum to include the new value and remove the old one
-ALTER TABLE `agendamentos` MODIFY COLUMN `status` enum('orcamento','confirmado','pagamento','concluido') NOT NULL DEFAULT 'orcamento';
+UPDATE `agendamentos`
+SET `status` = 'pagamento'
+WHERE `status` = 'cobranca';
+
+ALTER TABLE `agendamentos`
+MODIFY COLUMN `status` enum('orcamento','confirmado','pagamento','concluido')
+NOT NULL DEFAULT 'orcamento';
