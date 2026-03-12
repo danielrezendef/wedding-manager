@@ -12,6 +12,7 @@ import Agendamentos from "./pages/Agendamentos";
 import AgendamentoDetalhe from "./pages/AgendamentoDetalhe";
 import Usuarios from "./pages/Usuarios";
 import Perfil from "./pages/Perfil";
+import Contratos from "./pages/Contratos";
 
 function ProtectedRoute({ component: Component, adminOnly = false }: { component: React.ComponentType; adminOnly?: boolean }) {
   const { user, loading, isAdmin } = useAppAuth();
@@ -44,6 +45,9 @@ function Router() {
       </Route>
       <Route path="/usuarios">
         <ProtectedRoute component={Usuarios} adminOnly />
+      </Route>
+      <Route path="/contratos">
+        <ProtectedRoute component={Contratos} adminOnly />
       </Route>
       <Route path="/perfil">
         <ProtectedRoute component={Perfil} />

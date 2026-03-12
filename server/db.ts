@@ -1,6 +1,6 @@
 import { and, asc, count, desc, eq, gte, ilike, like, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { agendamentos, cobrancas, InsertUser, users } from "../drizzle/schema";
+import { agendamentos, cobrancas, contratos, InsertUser, users, Contrato, InsertContrato } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -425,4 +425,54 @@ export async function getDashboardStats(userId?: number) {
     valorReceber: parseFloat(valorReceber[0]?.total ?? "0"),
     porMes: porMesFormatted,
   };
+}
+
+// ─── Contratos ────────────────────────────────────────────────────────────────
+export async function listContratos(userId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const query = userId
+    ? db.select().from(contratos).where(eq(contratos.userId, userId)).orderBy(desc(contratos.createdAt))
+    : db.select().from(contratos).orderBy(desc(contratos.createdAt));
+
+  return query;
+}
+
+export async function getContratoById(id: number): Promise<Contrato | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(contratos).where(eq(contratos.id, id));
+  return result[0];
+}
+
+export async function createContrato(data: InsertContrato): Promise<Contrato> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not connected");
+
+  const result = await db.insert(contratos).values(data);
+  const id = result[0].insertId as number;
+
+  const created = await getContratoById(id);
+  if (!created) throw new Error("Failed to create contrato");
+  return created;
+}
+
+export async function updateContrato(
+  id: number,
+  data: Partial<InsertContrato>
+): Promise<Contrato | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  await db.update(contratos).set(data).where(eq(contratos.id, id));
+  return getContratoById(id);
+}
+
+export async function deleteContrato(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.delete(contratos).where(eq(contratos.id, id));
 }

@@ -148,3 +148,13 @@
 - [x] Atualizar testes
 - [x] Build e testes passando
 - [ ] Sincronizar com Git
+
+## Criação de Seção Contratos - Fase 11
+- [x] Criar tabela contratos no schema (Nome Completo, CPF, Endereço Completo)
+- [x] Executar pnpm db:push para migrar banco
+- [x] Criar procedures no backend (list, create, update, delete)
+- [x] Criar página Contratos.tsx no frontend
+- [x] Adicionar menu "Contrato" na administração com ícone FileText
+- [x] Testes passando
+- [x] Build de produção OK
+- [ ] Sincronizar com Git

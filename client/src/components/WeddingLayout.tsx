@@ -32,6 +32,7 @@ import {
   Settings,
   PanelLeft,
   Shield,
+  FileText,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -45,6 +46,7 @@ const menuItems = [
 
 const adminMenuItems = [
   { icon: Users, label: "Usuários", path: "/usuarios" },
+  { icon: FileText, label: "Contratos", path: "/contratos" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "wedding-sidebar-width";

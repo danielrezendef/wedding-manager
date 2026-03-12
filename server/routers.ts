@@ -10,19 +10,24 @@ import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import {
   createAgendamento,
   createCobranca,
+  createContrato,
   createUser,
   createUserFromSocial,
   deleteAgendamento,
+  deleteContrato,
   deleteUser,
   getAgendamentoById,
   getCobrancaByAgendamentoId,
   getDashboardStats,
+  getContratoById,
   getUserByEmail,
   getUserById,
   listAgendamentos,
+  listContratos,
   listUsers,
   updateAgendamento,
   updateCobranca,
+  updateContrato,
   updateUserRole,
   updateUserProfile,
   updateUserProfilePhoto,
@@ -414,12 +419,65 @@ const usersRouter = router({
     }),
 });
 
+// ─── Contratos Router ──────────────────────────────────────────────────────────
+const contratosRouter = router({
+  list: protectedProcedure
+    .query(async ({ ctx }) => {
+      return await listContratos(ctx.user.id);
+    }),
+
+  create: protectedProcedure
+    .input(
+      z.object({
+        nomeCompleto: z.string().min(1, "Nome completo obrigatório"),
+        cpf: z.string().min(1, "CPF obrigatório"),
+        enderecoCompleto: z.string().min(1, "Endereço obrigatório"),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await createContrato({
+        userId: ctx.user.id,
+        nomeCompleto: input.nomeCompleto,
+        cpf: input.cpf,
+        enderecoCompleto: input.enderecoCompleto,
+      });
+    }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        nomeCompleto: z.string().optional(),
+        cpf: z.string().optional(),
+        enderecoCompleto: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const contrato = await getContratoById(input.id);
+      if (!contrato) throw new Error("Contrato não encontrado");
+
+      return await updateContrato(input.id, {
+        nomeCompleto: input.nomeCompleto ?? contrato.nomeCompleto,
+        cpf: input.cpf ?? contrato.cpf,
+        enderecoCompleto: input.enderecoCompleto ?? contrato.enderecoCompleto,
+      });
+    }),
+
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      await deleteContrato(input.id);
+      return { success: true };
+    }),
+});
+
 // ─── App Router ───────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
   auth: authRouter,
   agendamentos: agendamentosRouter,
   cobrancas: cobrancasRouter,
+  contratos: contratosRouter,
   dashboard: dashboardRouter,
   users: usersRouter,
 });

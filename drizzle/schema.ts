@@ -72,3 +72,17 @@ export const cobrancas = mysqlTable("cobrancas", {
 
 export type Cobranca = typeof cobrancas.$inferSelect;
 export type InsertCobranca = typeof cobrancas.$inferInsert;
+
+// ─── Contratos ────────────────────────────────────────────────────────────────
+export const contratos = mysqlTable("contratos", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // owner
+  nomeCompleto: varchar("nomeCompleto", { length: 255 }).notNull(),
+  cpf: varchar("cpf", { length: 14 }).notNull(),
+  enderecoCompleto: text("enderecoCompleto").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Contrato = typeof contratos.$inferSelect;
+export type InsertContrato = typeof contratos.$inferInsert;
