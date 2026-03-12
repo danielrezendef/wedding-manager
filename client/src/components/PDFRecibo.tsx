@@ -41,16 +41,7 @@ interface PDFReciboProps {
     foro: string;
     dataAssinatura?: Date;
   };
-
-  testemunha1?: {
-    nome?: string;
-    cpf?: string;
-  };
-
-  testemunha2?: {
-    nome?: string;
-    cpf?: string;
-  };
+  
 }
 
 const styles = StyleSheet.create({
@@ -309,8 +300,6 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
   cobranca,
   nomeEmpresa,
   contratada,
-  testemunha1,
-  testemunha2,
 }) => {
   const dataEmissao = new Date();
   const dataAssinatura = contratada.dataAssinatura || cobranca.createdAt || new Date();

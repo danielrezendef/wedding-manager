@@ -4,78 +4,128 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+type FormDataType = {
+  nomeCompleto: string;
+  cpf: string;
+  enderecoCompleto: string;
+};
+
+const initialFormData: FormDataType = {
+  nomeCompleto: "",
+  cpf: "",
+  enderecoCompleto: "",
+};
+
 export default function Contratos() {
-  const [formData, setFormData] = useState({
-    nomeCompleto: "",
-    cpf: "",
-    enderecoCompleto: "",
-  });
+  const [formData, setFormData] = useState<FormDataType>(initialFormData);
   const [isEditing, setIsEditing] = useState(false);
 
-  const { data: contrato, isLoading, refetch } = trpc.contratos.get.useQuery();
-  
+  const utils = trpc.useUtils();
+
+  const {
+    data: contrato,
+    isLoading,
+    isFetching,
+  } = trpc.contratos.get.useQuery(undefined, {
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+
   const createMutation = trpc.contratos.create.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Contrato salvo com sucesso!");
-      refetch();
+      await utils.contratos.get.invalidate();
       setIsEditing(false);
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => {
+      toast.error(err.message);
+    },
   });
 
   const updateMutation = trpc.contratos.update.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Contrato atualizado com sucesso!");
-      refetch();
+      await utils.contratos.get.invalidate();
       setIsEditing(false);
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => {
+      toast.error(err.message);
+    },
   });
 
   useEffect(() => {
     if (contrato) {
       setFormData({
-        nomeCompleto: contrato.nomeCompleto,
-        cpf: contrato.cpf,
-        enderecoCompleto: contrato.enderecoCompleto,
+        nomeCompleto: contrato.nomeCompleto ?? "",
+        cpf: contrato.cpf ?? "",
+        enderecoCompleto: contrato.enderecoCompleto ?? "",
       });
+    } else {
+      setFormData(initialFormData);
     }
   }, [contrato]);
+
+  const handleChange = (
+    field: keyof FormDataType,
+    value: string
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.nomeCompleto || !formData.cpf || !formData.enderecoCompleto) {
+    const nomeCompleto = formData.nomeCompleto.trim();
+    const cpf = formData.cpf.trim();
+    const enderecoCompleto = formData.enderecoCompleto.trim();
+
+    if (!nomeCompleto || !cpf || !enderecoCompleto) {
       toast.error("Preencha todos os campos");
       return;
     }
 
+    const payload = {
+      nomeCompleto,
+      cpf,
+      enderecoCompleto,
+    };
+
     if (contrato) {
       updateMutation.mutate({
         id: contrato.id,
-        ...formData,
+        ...payload,
       });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(payload);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  const isSaving = createMutation.isPending || updateMutation.isPending;
+  const isDisabled = !!contrato && !isEditing;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Contrato</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold">Contrato</h1>
+          {(isLoading || isFetching) && (
+            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+          )}
+        </div>
         <p className="text-muted-foreground mt-2">
           Preencha seus dados de contrato abaixo
         </p>
@@ -85,42 +135,47 @@ export default function Contratos() {
         <CardHeader>
           <CardTitle>Dados do Contrato</CardTitle>
           <CardDescription>
-            {contrato ? "Edite seus dados de contrato" : "Crie seu contrato com os dados abaixo"}
+            {contrato
+              ? "Edite seus dados de contrato"
+              : "Crie seu contrato com os dados abaixo"}
           </CardDescription>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
+            <div className="space-y-3">
               <Label htmlFor="nomeCompleto">Nome Completo</Label>
               <Input
                 id="nomeCompleto"
                 value={formData.nomeCompleto}
-                onChange={(e) => setFormData({ ...formData, nomeCompleto: e.target.value })}
+                onChange={(e) => handleChange("nomeCompleto", e.target.value)}
                 placeholder="Digite seu nome completo"
-                disabled={!isEditing && !!contrato}
+                disabled={isDisabled || isSaving}
               />
             </div>
 
-            <div>
+            <div className="space-y-3">
               <Label htmlFor="cpf">CPF</Label>
               <Input
                 id="cpf"
                 value={formData.cpf}
-                onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                onChange={(e) => handleChange("cpf", e.target.value)}
                 placeholder="000.000.000-00"
-                disabled={!isEditing && !!contrato}
+                disabled={isDisabled || isSaving}
               />
             </div>
 
-            <div>
+            <div className="space-y-3">
               <Label htmlFor="endereco">Endereço Completo</Label>
               <Textarea
                 id="endereco"
                 value={formData.enderecoCompleto}
-                onChange={(e) => setFormData({ ...formData, enderecoCompleto: e.target.value })}
+                onChange={(e) =>
+                  handleChange("enderecoCompleto", e.target.value)
+                }
                 placeholder="Digite seu endereço completo"
                 rows={4}
-                disabled={!isEditing && !!contrato}
+                disabled={isDisabled || isSaving}
               />
             </div>
 
@@ -137,10 +192,10 @@ export default function Contratos() {
                 <>
                   <Button
                     type="submit"
-                    disabled={createMutation.isPending || updateMutation.isPending}
+                    disabled={isSaving}
                     className="flex-1"
                   >
-                    {createMutation.isPending || updateMutation.isPending ? (
+                    {isSaving ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         Salvando...
@@ -149,19 +204,18 @@ export default function Contratos() {
                       "Salvar"
                     )}
                   </Button>
+
                   {contrato && isEditing && (
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => {
                         setIsEditing(false);
-                        if (contrato) {
-                          setFormData({
-                            nomeCompleto: contrato.nomeCompleto,
-                            cpf: contrato.cpf,
-                            enderecoCompleto: contrato.enderecoCompleto,
-                          });
-                        }
+                        setFormData({
+                          nomeCompleto: contrato.nomeCompleto ?? "",
+                          cpf: contrato.cpf ?? "",
+                          enderecoCompleto: contrato.enderecoCompleto ?? "",
+                        });
                       }}
                       className="flex-1"
                     >

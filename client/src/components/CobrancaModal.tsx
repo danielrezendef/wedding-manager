@@ -44,7 +44,7 @@ type Props = {
 export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId, cobranca, agendamento, onDownloadPDF }: Props) {
   const isEdit = !!cobranca;
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-
+  const { data: contrato } = trpc.contratos.get.useQuery();
   const {
     register,
     handleSubmit,
@@ -127,15 +127,13 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
           }}
           nomeEmpresa="Wedding Manager"
           contratada={{
-          nome: "Ana Laura Souza",
-          cpf: "135.439.746-02",
-          endereco: "Rua Vovó Maria Drumond, nº 83, Bairro Murilo Gonçalves, Itaúna - MG",
-          cidadeAssinatura: "Itaúna - MG",
-          foro: "Itaúna - MG",
-          dataAssinatura: new Date(),
+            nome: contrato?.nomeCompleto || "",
+            cpf: contrato?.cpf || "",
+            endereco: contrato?.enderecoCompleto || "",
+            cidadeAssinatura: "Itaúna - MG",
+            foro: "Itaúna - MG",
+            dataAssinatura: new Date()
           }}
-          testemunha1={{ nome: "Maria da Silva", cpf: "111.111.111-11" }}
-          testemunha2={{ nome: "João dos Santos", cpf: "222.222.222-22" }}
         />
       );
       const blob = await pdf(doc).toBlob();
