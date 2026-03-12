@@ -15,6 +15,7 @@ import {
   createUserFromSocial,
   deleteAgendamento,
   deleteContrato,
+  getLatestContratoByUserId,
   deleteUser,
   getAgendamentoById,
   getCobrancaByAgendamentoId,
@@ -423,8 +424,8 @@ const usersRouter = router({
 const contratosRouter = router({
   get: protectedProcedure
     .query(async ({ ctx }) => {
-      const contratos = await listContratos(ctx.user.id);
-      return contratos[0] ?? null;
+      const contrato = await getLatestContratoByUserId(ctx.user.id);
+      return contrato ?? null;
     }),
 
   list: protectedProcedure

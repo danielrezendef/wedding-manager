@@ -439,6 +439,20 @@ export async function listContratos(userId?: number) {
   return query;
 }
 
+export async function getLatestContratoByUserId(userId: number): Promise<Contrato | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(contratos)
+    .where(eq(contratos.userId, userId))
+    .orderBy(desc(contratos.createdAt))
+    .limit(1);
+
+  return result[0];
+}
+
 export async function getContratoById(id: number): Promise<Contrato | undefined> {
   const db = await getDb();
   if (!db) return undefined;
