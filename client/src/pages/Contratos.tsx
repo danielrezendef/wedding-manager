@@ -46,6 +46,14 @@ export default function Contratos() {
     }
   }, [contrato]);
 
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let v = e.target.value.replace(/\D/g, "").slice(0, 11);
+    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+    v = v.replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+    v = v.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+    setFormData((prev) => ({ ...prev, cpf: v }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -106,7 +114,7 @@ export default function Contratos() {
               <Input
                 id="cpf"
                 value={formData.cpf}
-                onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                onChange={handleCpfChange}
                 placeholder="000.000.000-00"
                 disabled={!isEditing && !!contrato}
               />
