@@ -76,16 +76,6 @@ export default function Contratos() {
     }
   }, [contrato]);
 
-  const handleChange = (
-    field: keyof FormDataType,
-    value: string
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -159,7 +149,7 @@ export default function Contratos() {
               <Input
                 id="cpf"
                 value={formData.cpf}
-                onChange={(e) => handleChange("cpf", e.target.value)}
+                onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
                 placeholder="000.000.000-00"
                 disabled={isDisabled || isSaving}
               />
