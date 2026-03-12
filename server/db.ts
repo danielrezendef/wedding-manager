@@ -5,6 +5,16 @@ import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
+function isUnknownContratosUserIdColumnError(error: unknown) {
+  if (!(error instanceof Error)) return false;
+  return error.message.includes("Unknown column 'userId' in 'field list'")
+    || error.message.includes("Unknown column 'contratos.userId' in 'where clause'");
+}
+
+async function ensureContratosUserIdColumn(db: ReturnType<typeof drizzle>) {
+  await db.execute(sql.raw("ALTER TABLE `contratos` ADD COLUMN `userId` int NULL"));
+}
+
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -432,23 +442,46 @@ export async function listContratos(userId?: number) {
   const db = await getDb();
   if (!db) return [];
 
-  const query = userId
-    ? db.select().from(contratos).where(eq(contratos.userId, userId)).orderBy(desc(contratos.createdAt))
-    : db.select().from(contratos).orderBy(desc(contratos.createdAt));
+  try {
+    const query = userId
+      ? db.select().from(contratos).where(eq(contratos.userId, userId)).orderBy(desc(contratos.createdAt))
+      : db.select().from(contratos).orderBy(desc(contratos.createdAt));
 
-  return query;
+    return query;
+  } catch (error) {
+    if (!isUnknownContratosUserIdColumnError(error)) throw error;
+    await ensureContratosUserIdColumn(db);
+
+    const query = userId
+      ? db.select().from(contratos).where(eq(contratos.userId, userId)).orderBy(desc(contratos.createdAt))
+      : db.select().from(contratos).orderBy(desc(contratos.createdAt));
+
+    return query;
+  }
 }
 
 export async function getLatestContratoByUserId(userId: number): Promise<Contrato | undefined> {
   const db = await getDb();
   if (!db) return undefined;
 
-  const result = await db
-    .select()
-    .from(contratos)
-    .where(eq(contratos.userId, userId))
-    .orderBy(desc(contratos.createdAt))
-    .limit(1);
+  let result: Contrato[];
+  try {
+    result = await db
+      .select()
+      .from(contratos)
+      .where(eq(contratos.userId, userId))
+      .orderBy(desc(contratos.createdAt))
+      .limit(1);
+  } catch (error) {
+    if (!isUnknownContratosUserIdColumnError(error)) throw error;
+    await ensureContratosUserIdColumn(db);
+    result = await db
+      .select()
+      .from(contratos)
+      .where(eq(contratos.userId, userId))
+      .orderBy(desc(contratos.createdAt))
+      .limit(1);
+  }
 
   return result[0];
 }
@@ -465,7 +498,14 @@ export async function createContrato(data: InsertContrato): Promise<Contrato> {
   const db = await getDb();
   if (!db) throw new Error("Database not connected");
 
-  const result = await db.insert(contratos).values(data);
+  let result;
+  try {
+    result = await db.insert(contratos).values(data);
+  } catch (error) {
+    if (!isUnknownContratosUserIdColumnError(error)) throw error;
+    await ensureContratosUserIdColumn(db);
+    result = await db.insert(contratos).values(data);
+  }
   const id = result[0].insertId as number;
 
   const created = await getContratoById(id);
