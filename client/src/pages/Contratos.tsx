@@ -30,6 +30,10 @@ export default function Contratos() {
   const [formData, setFormData] = useState<FormDataType>(initialFormData);
   const [isEditing, setIsEditing] = useState(false);
 
+  const handleChange = (field: keyof FormDataType, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
   const utils = trpc.useUtils();
 
   const {
@@ -149,7 +153,7 @@ export default function Contratos() {
               <Input
                 id="cpf"
                 value={formData.cpf}
-                onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                onChange={(e) => handleChange("cpf", e.target.value)}
                 placeholder="000.000.000-00"
                 disabled={isDisabled || isSaving}
               />
