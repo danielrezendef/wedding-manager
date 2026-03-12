@@ -421,6 +421,12 @@ const usersRouter = router({
 
 // ─── Contratos Router ──────────────────────────────────────────────────────────
 const contratosRouter = router({
+  get: protectedProcedure
+    .query(async ({ ctx }) => {
+      const contratos = await listContratos(ctx.user.id);
+      return contratos[0] ?? null;
+    }),
+
   list: protectedProcedure
     .query(async ({ ctx }) => {
       return await listContratos(ctx.user.id);
@@ -452,9 +458,10 @@ const contratosRouter = router({
         enderecoCompleto: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const contrato = await getContratoById(input.id);
       if (!contrato) throw new Error("Contrato não encontrado");
+      if (contrato.userId !== ctx.user.id) throw new Error("Não autorizado");
 
       return await updateContrato(input.id, {
         nomeCompleto: input.nomeCompleto ?? contrato.nomeCompleto,
@@ -465,10 +472,14 @@ const contratosRouter = router({
 
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      const contrato = await getContratoById(input.id);
+      if (!contrato) throw new Error("Contrato não encontrado");
+      if (contrato.userId !== ctx.user.id) throw new Error("Não autorizado");
+      
       await deleteContrato(input.id);
       return { success: true };
-    }),
+    })
 });
 
 // ─── App Router ───────────────────────────────────────────────────────────────

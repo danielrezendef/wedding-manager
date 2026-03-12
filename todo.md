@@ -158,3 +158,10 @@
 - [x] Testes passando
 - [x] Build de produção OK
 - [ ] Sincronizar com Git
+
+## Simplificação de Contratos - Fase 12
+- [x] Reescrever Contratos.tsx como formulário simples (sem CRUD/tabela)
+- [x] Atualizar backend para retornar um único contrato do usuário
+- [x] Testes passando
+- [x] Build OK
+- [ ] Sincronizar com Git
