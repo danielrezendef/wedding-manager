@@ -13,6 +13,8 @@ import AgendamentoDetalhe from "./pages/AgendamentoDetalhe";
 import Usuarios from "./pages/Usuarios";
 import Perfil from "./pages/Perfil";
 import Contratos from "./pages/Contratos";
+import Compartilhamento from "./pages/Compartilhamento";
+import ConvitesRecebidos from "./pages/ConvitesRecebidos";
 
 function ProtectedRoute({ component: Component, adminOnly = false }: { component: React.ComponentType; adminOnly?: boolean }) {
   const { user, loading, isAdmin } = useAppAuth();
@@ -48,6 +50,12 @@ function Router() {
       </Route>
       <Route path="/contratos">
         <ProtectedRoute component={Contratos} adminOnly />
+      </Route>
+      <Route path="/compartilhamento">
+        <ProtectedRoute component={Compartilhamento} />
+      </Route>
+      <Route path="/convites-recebidos">
+        <ProtectedRoute component={ConvitesRecebidos} />
       </Route>
       <Route path="/perfil">
         <ProtectedRoute component={Perfil} />

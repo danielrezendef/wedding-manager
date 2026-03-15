@@ -86,3 +86,34 @@ export const contratos = mysqlTable("contratos", {
 
 export type Contrato = typeof contratos.$inferSelect;
 export type InsertContrato = typeof contratos.$inferInsert;
+
+// ─── Convites (Compartilhamento de Gerenciamento) ──────────────────────────────
+export const invites = mysqlTable("invites", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull(), // quem está convidando
+  invitedEmail: varchar("invitedEmail", { length: 320 }).notNull(), // email de quem está sendo convidado
+  status: mysqlEnum("status", ["pending", "accepted", "rejected"]).default("pending").notNull(),
+  permissions: mysqlEnum("permissions", ["view", "edit"]).default("edit").notNull(), // view ou edit
+  expiresAt: timestamp("expiresAt").notNull(), // convite expira em 7 dias
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Invite = typeof invites.$inferSelect;
+export type InsertInvite = typeof invites.$inferInsert;
+
+// ─── Permissões (Acesso Compartilhado) ─────────────────────────────────────────
+export const permissions = mysqlTable("permissions", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull(), // dono original dos dados
+  managerId: int("managerId").notNull(), // quem tem acesso para gerenciar
+  resourceType: mysqlEnum("resourceType", ["profile", "agendamentos", "contratos", "all"])
+    .default("all")
+    .notNull(), // tipo de recurso que pode gerenciar
+  accessLevel: mysqlEnum("accessLevel", ["view", "edit"]).default("edit").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Permission = typeof permissions.$inferSelect;
+export type InsertPermission = typeof permissions.$inferInsert;
