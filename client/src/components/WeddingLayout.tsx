@@ -156,7 +156,7 @@ function WeddingLayoutContent({
                     <Heart className="w-3.5 h-3.5 text-white" fill="white" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-bold truncate leading-none">Wedding Manager</p>
+                    <p className="text-sm font-bold truncate leading-none">Wedding App</p>
                     <p className="text-[10px] text-muted-foreground truncate mt-0.5">Gestão de Casamentos</p>
                   </div>
                 </div>

@@ -1,6 +1,6 @@
-# Guia Completo: Configurar Wedding Manager no Railway
+# Guia Completo: Configurar Wedding App no Railway
 
-Este guia fornece um passo a passo detalhado para fazer deploy do Wedding Manager no Railway com banco de dados PostgreSQL.
+Este guia fornece um passo a passo detalhado para fazer deploy do Wedding App no Railway com banco de dados PostgreSQL.
 
 ---
 
@@ -31,7 +31,7 @@ git remote add origin https://github.com/SEU_USUARIO/wedding-manager.git
 git add .
 
 # Fazer commit
-git commit -m "Initial commit: Wedding Manager com Google OAuth"
+git commit -m "Initial commit: Wedding App com Google OAuth"
 
 # Fazer push para master
 git push -u origin master
@@ -104,7 +104,7 @@ Adicione as seguintes variáveis de ambiente:
 | `NODE_ENV` | `production` | Ambiente de produção |
 | `JWT_SECRET` | `sua-chave-secreta-aqui` | Chave para assinar JWTs (gere uma string aleatória forte) |
 | `VITE_GOOGLE_CLIENT_ID` | `seu-google-client-id` | ID do cliente Google OAuth |
-| `VITE_APP_TITLE` | `Wedding Manager` | Título da aplicação |
+| `VITE_APP_TITLE` | `Wedding App` | Título da aplicação |
 | `VITE_APP_LOGO` | `https://...` | URL do logo (opcional) |
 
 ### 4.3 Gerar JWT_SECRET seguro
@@ -224,7 +224,7 @@ Se tudo correr bem, você verá: ✅ **Migrations applied successfully**
 ### 8.1 Acessar a aplicação
 
 1. Vá para o domínio do seu projeto: `https://seu-projeto.railway.app`
-2. Você deve ver a página de login do Wedding Manager
+2. Você deve ver a página de login do Wedding App
 
 ### 8.2 Testar login
 
