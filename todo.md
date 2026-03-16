@@ -165,3 +165,14 @@
 - [x] Testes passando
 - [x] Build OK
 - [ ] Sincronizar com Git
+
+## Compartilhamento de Gerenciamento - Fase 13
+- [x] Criar tabelas de convites e permissões no schema
+- [x] Executar pnpm db:push para migrar banco
+- [x] Criar procedures no backend (enviar convite, aceitar, rejeitar, listar)
+- [x] Criar página de Compartilhamento com formulário para enviar convites
+- [x] Criar página de Convites Recebidos para aceitar/rejeitar
+- [x] Adicionar menu de Compartilhamento e Convites na navegação
+- [x] Testes passando
+- [x] Build OK
+- [ ] Sincronizar com Git
