@@ -140,7 +140,7 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `recibo-${agendamento.id}-${new Date().toISOString().split("T")[0]}.pdf`;
+      link.download = `Contrato_${agendamento.id}_${agendamento.Noiva}_e_${agendamento.Noivo}_${new Date().toISOString().split("T")[0]}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
       toast.success("PDF gerado com sucesso!");

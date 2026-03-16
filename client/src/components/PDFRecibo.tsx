@@ -310,7 +310,7 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <Text style={styles.title}>{nomeEmpresa}</Text>
-          <Text style={styles.subtitle}>Recibo de Cobrança - Serviço de Cerimonial</Text>
+          <Text style={styles.subtitle}>Gestão de Agendamentos</Text>
         </View>
 
         <View style={styles.section}>
@@ -362,7 +362,7 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Responsável Financeiro</Text>
+          <Text style={styles.sectionTitle}>Contratante</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Nome:</Text>
             <Text style={styles.value}>{cobranca.responsavel}</Text>
@@ -528,12 +528,7 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
           controvérsias oriundas do presente contrato, as partes elegem o foro da
           comarca de <Text style={styles.bold}>{contratada.foro}</Text>.
         </Text>
-
-        <Text style={styles.paragraph}>
-          Por estarem assim justos e contratados, firmam o presente instrumento em
-          duas vias de igual teor, juntamente com 2 (duas) testemunhas.
-        </Text>
-
+      
         <Text style={styles.dateText}>
           {contratada.cidadeAssinatura},{" "}
           {format(new Date(dataAssinatura), "dd 'de' MMMM 'de' yyyy", {
