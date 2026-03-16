@@ -33,8 +33,6 @@ import {
   PanelLeft,
   Shield,
   FileText,
-  Share2,
-  Mail,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -44,8 +42,7 @@ import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: Calendar, label: "Agendamentos", path: "/agendamentos" },
-  { icon: Share2, label: "Compartilhamento", path: "/compartilhamento" },
-  { icon: Mail, label: "Convites", path: "/convites-recebidos" },
+
 ];
 
 const adminMenuItems = [

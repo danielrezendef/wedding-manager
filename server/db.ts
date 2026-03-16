@@ -1,6 +1,6 @@
 import { and, asc, count, desc, eq, gte, ilike, like, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { agendamentos, cobrancas, contratos, invites, permissions, InsertUser, users, Contrato, InsertContrato, Invite, InsertInvite, Permission, InsertPermission } from "../drizzle/schema";
+import { agendamentos, cobrancas, contratos, InsertUser, users, Contrato, InsertContrato } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -491,101 +491,4 @@ export async function deleteContrato(id: number): Promise<void> {
   await db.delete(contratos).where(eq(contratos.id, id));
 }
 
-// ─── Convites (Compartilhamento) ──────────────────────────────────────────────
-export async function createInvite(data: {
-  ownerId: number;
-  invitedEmail: string;
-  permissions: "view" | "edit";
-}): Promise<Invite> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not connected");
 
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 7); // Expira em 7 dias
-
-  const result = await db.insert(invites).values({
-    ownerId: data.ownerId,
-    invitedEmail: data.invitedEmail,
-    permissions: data.permissions,
-    status: "pending",
-    expiresAt,
-  });
-
-  const id = result[0].insertId as number;
-  const created = await db.select().from(invites).where(eq(invites.id, id)).limit(1);
-  if (!created[0]) throw new Error("Failed to create invite");
-  return created[0];
-}
-
-export async function listInvitesSent(ownerId: number): Promise<Invite[]> {
-  const db = await getDb();
-  if (!db) return [];
-
-  return db.select().from(invites).where(eq(invites.ownerId, ownerId)).orderBy(desc(invites.createdAt));
-}
-
-export async function listInvitesReceived(invitedEmail: string): Promise<Invite[]> {
-  const db = await getDb();
-  if (!db) return [];
-
-  return db.select().from(invites).where(eq(invites.invitedEmail, invitedEmail)).orderBy(desc(invites.createdAt));
-}
-
-export async function acceptInvite(inviteId: number, managerId: number): Promise<void> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not connected");
-
-  const invite = await db.select().from(invites).where(eq(invites.id, inviteId)).limit(1);
-  if (!invite[0]) throw new Error("Invite not found");
-
-  // Atualizar status do convite
-  await db.update(invites).set({ status: "accepted" }).where(eq(invites.id, inviteId));
-
-  // Criar permissão
-  await db.insert(permissions).values({
-    ownerId: invite[0].ownerId,
-    managerId,
-    resourceType: "all",
-    accessLevel: invite[0].permissions,
-  });
-}
-
-export async function rejectInvite(inviteId: number): Promise<void> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not connected");
-
-  await db.update(invites).set({ status: "rejected" }).where(eq(invites.id, inviteId));
-}
-
-export async function listPermissions(ownerId: number): Promise<Permission[]> {
-  const db = await getDb();
-  if (!db) return [];
-
-  return db.select().from(permissions).where(eq(permissions.ownerId, ownerId)).orderBy(desc(permissions.createdAt));
-}
-
-export async function revokePermission(permissionId: number): Promise<void> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not connected");
-
-  await db.delete(permissions).where(eq(permissions.id, permissionId));
-}
-
-export async function checkPermission(ownerId: number, managerId: number, resourceType: string): Promise<boolean> {
-  const db = await getDb();
-  if (!db) return false;
-
-  const result = await db
-    .select()
-    .from(permissions)
-    .where(
-      and(
-        eq(permissions.ownerId, ownerId),
-        eq(permissions.managerId, managerId),
-        or(eq(permissions.resourceType, "all"), eq(permissions.resourceType, resourceType as any))
-      )
-    )
-    .limit(1);
-
-  return result.length > 0;
-}

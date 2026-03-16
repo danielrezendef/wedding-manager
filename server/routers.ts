@@ -11,7 +11,6 @@ import {
   createAgendamento,
   createCobranca,
   createContrato,
-  createInvite,
   createUser,
   createUserFromSocial,
   deleteAgendamento,
@@ -26,13 +25,7 @@ import {
   getUserById,
   listAgendamentos,
   listContratos,
-  listInvitesSent,
-  listInvitesReceived,
-  listPermissions,
   listUsers,
-  acceptInvite,
-  rejectInvite,
-  revokePermission,
   updateAgendamento,
   updateCobranca,
   updateContrato,
@@ -490,59 +483,7 @@ const contratosRouter = router({
     })
 });
 
-// ─── Convites Router ──────────────────────────────────────────────────────────
-const invitesRouter = router({
-  send: protectedProcedure
-    .input(
-      z.object({
-        invitedEmail: z.string().email("Email inválido"),
-        permissions: z.enum(["view", "edit"]),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      return await createInvite({
-        ownerId: ctx.user.id,
-        invitedEmail: input.invitedEmail,
-        permissions: input.permissions,
-      });
-    }),
 
-  listSent: protectedProcedure
-    .query(async ({ ctx }) => {
-      return await listInvitesSent(ctx.user.id);
-    }),
-
-  listReceived: protectedProcedure
-    .query(async ({ ctx }) => {
-      return await listInvitesReceived(ctx.user.email || "");
-    }),
-
-  accept: protectedProcedure
-    .input(z.object({ inviteId: z.number() }))
-    .mutation(async ({ ctx, input }) => {
-      await acceptInvite(input.inviteId, ctx.user.id);
-      return { success: true };
-    }),
-
-  reject: protectedProcedure
-    .input(z.object({ inviteId: z.number() }))
-    .mutation(async ({ input }) => {
-      await rejectInvite(input.inviteId);
-      return { success: true };
-    }),
-
-  listPermissions: protectedProcedure
-    .query(async ({ ctx }) => {
-      return await listPermissions(ctx.user.id);
-    }),
-
-  revoke: protectedProcedure
-    .input(z.object({ permissionId: z.number() }))
-    .mutation(async ({ input }) => {
-      await revokePermission(input.permissionId);
-      return { success: true };
-    }),
-});
 
 // ─── App Router ───────────────────────────────────────────────────────────────
 export const appRouter = router({
@@ -551,7 +492,7 @@ export const appRouter = router({
   agendamentos: agendamentosRouter,
   cobrancas: cobrancasRouter,
   contratos: contratosRouter,
-  invites: invitesRouter,
+
   dashboard: dashboardRouter,
   users: usersRouter,
 });
