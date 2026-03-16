@@ -99,6 +99,16 @@ export default function Contratos() {
     };
 
     if (contrato) {
+      const hasChangedData =
+        nomeCompleto !== (contrato.nomeCompleto ?? "").trim() ||
+        cpf !== (contrato.cpf ?? "").trim() ||
+        enderecoCompleto !== (contrato.enderecoCompleto ?? "").trim();
+
+      if (!hasChangedData) {
+        setIsEditing(false);
+        return;
+      }
+
       updateMutation.mutate({
         id: contrato.id,
         ...payload,
@@ -110,6 +120,11 @@ export default function Contratos() {
 
   const isSaving = createMutation.isPending || updateMutation.isPending;
   const isDisabled = !!contrato && !isEditing;
+  const hasChanges = contrato
+    ? formData.nomeCompleto.trim() !== (contrato.nomeCompleto ?? "").trim() ||
+      formData.cpf.trim() !== (contrato.cpf ?? "").trim() ||
+      formData.enderecoCompleto.trim() !== (contrato.enderecoCompleto ?? "").trim()
+    : true;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -186,7 +201,7 @@ export default function Contratos() {
                 <>
                   <Button
                     type="submit"
-                    disabled={isSaving}
+                    disabled={isSaving || (contrato ? !hasChanges : false)}
                     className="flex-1"
                   >
                     {isSaving ? (
