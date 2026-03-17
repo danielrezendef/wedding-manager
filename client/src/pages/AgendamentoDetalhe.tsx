@@ -155,7 +155,7 @@ export default function AgendamentoDetalhe() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      llink.download = `Contrato_${agendamento.id}_${agendamento.Noiva}_e_${agendamento.Noivo}_${new Date().toISOString().split("T")[0]}.pdf`;
+      link.download = `Contrato_${data.id}_${data.nomeNoiva}_e_${data.nomeNoivo}_${new Date().toISOString().split("T")[0]}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
       toast.success("PDF gerado com sucesso!");
@@ -295,7 +295,7 @@ export default function AgendamentoDetalhe() {
                         </>
                       ) : (
                         <>
-                          <Download className="w-3.5 h-3.5 mr-1.5" /> Baixar Recibo em PDF
+                          <Download className="w-3.5 h-3.5 mr-1.5" /> Baixar Contrato
                         </>
                       )}
                     </Button>
