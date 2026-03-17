@@ -264,7 +264,7 @@ export default function Login() {
               </CardTitle>
               <CardDescription>
                 {mode === "login"
-                  ? "Acesse o sistema de gestão de casamentos"
+                  ? "Acesse o sistema de gestão de agendamentos"
                   : "Preencha os dados para criar sua conta"}
               </CardDescription>
             </CardHeader>

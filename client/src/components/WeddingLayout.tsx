@@ -157,7 +157,7 @@ function WeddingLayoutContent({
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-bold truncate leading-none">Wedding App</p>
-                    <p className="text-[10px] text-muted-foreground truncate mt-0.5">Gestão de Casamentos</p>
+                    <p className="text-[10px] text-muted-foreground truncate mt-0.5">Gestão de Agendamentos</p>
                   </div>
                 </div>
               )}
