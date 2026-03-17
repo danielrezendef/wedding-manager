@@ -44,13 +44,12 @@ function Router() {
       <Route path="/agendamentos">
         <ProtectedRoute component={Agendamentos} />
       </Route>
+      <Route path="/contratos">
+        <ProtectedRoute component={Contratos}/>
+      </Route>
       <Route path="/usuarios">
         <ProtectedRoute component={Usuarios} adminOnly />
       </Route>
-      <Route path="/contratos">
-        <ProtectedRoute component={Contratos} adminOnly />
-      </Route>
-
       <Route path="/perfil">
         <ProtectedRoute component={Perfil} />
       </Route>

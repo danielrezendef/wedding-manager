@@ -42,12 +42,12 @@ import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: Calendar, label: "Agendamentos", path: "/agendamentos" },
+  { icon: FileText, label: "Contratos", path: "/contratos" },
 
 ];
 
 const adminMenuItems = [
   { icon: Users, label: "Usuários", path: "/usuarios" },
-  { icon: FileText, label: "Contratos", path: "/contratos" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "wedding-sidebar-width";

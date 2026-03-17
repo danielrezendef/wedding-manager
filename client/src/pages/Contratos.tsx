@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { set } from "date-fns";
 
 type FormDataType = {
   nomeCompleto: string;
@@ -32,6 +33,14 @@ export default function Contratos() {
 
   const handleChange = (field: keyof FormDataType, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+  
+  const handleCpfChange = (field: keyof FormDataType, value: string) => {
+    let v = value.replace(/\D/g, "").slice(0, 11);
+    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+    v = v.replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+    v = v.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+    setFormData((prev) => ({ ...prev, [field]: v }));
   };
 
   const utils = trpc.useUtils();
@@ -79,6 +88,9 @@ export default function Contratos() {
       setFormData(initialFormData);
     }
   }, [contrato]);
+
+
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,12 +175,13 @@ export default function Contratos() {
               />
             </div>
 
+          {/* CPF */}
             <div className="space-y-3">
               <Label htmlFor="cpf">CPF</Label>
               <Input
                 id="cpf"
                 value={formData.cpf}
-                onChange={(e) => handleChange("cpf", e.target.value)}
+                onChange={(e) => handleCpfChange("cpf", e.target.value)}
                 placeholder="000.000.000-00"
                 disabled={isDisabled || isSaving}
               />

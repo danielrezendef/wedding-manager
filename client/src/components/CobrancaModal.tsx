@@ -109,53 +109,53 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
     },
   });
 
-  const handleDownloadPDF = async () => {
-    if (!agendamento || !cobranca) {
-      toast.error("Dados incompletos para gerar PDF");
-      return;
-    }
+  // const handleDownloadPDF = async () => {
+  //   if (!agendamento || !cobranca) {
+  //     toast.error("Dados incompletos para gerar PDF");
+  //     return;
+  //   }
 
-    try {
-      setIsGeneratingPDF(true);
-      const doc = (
-        <PDFRecibo
-          agendamento={agendamento}
-          cobranca={{
-            ...cobranca,
-            responsavel: cobranca.nomeResponsavel || cobranca.responsavel,
-            endereco: cobranca.enderecoCompleto || cobranca.endereco,
-          }}
-          nomeEmpresa="Wedding App"
-          contratada={{
-            nome: contrato?.nomeCompleto || "",
-            cpf: contrato?.cpf || "",
-            endereco: contrato?.enderecoCompleto || "",
-            cidadeAssinatura: "Itaúna - MG",
-            foro: "Itaúna - MG",
-            dataAssinatura: new Date()
-          }}
-        />
-      );
-      const blob = await pdf(doc).toBlob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `Contrato_${agendamento.id}_${agendamento.Noiva}_e_${agendamento.Noivo}_${new Date().toISOString().split("T")[0]}.pdf`;
-      link.click();
-      URL.revokeObjectURL(url);
-      toast.success("PDF gerado com sucesso!");
+  //   try {
+  //     setIsGeneratingPDF(true);
+  //     const doc = (
+  //       <PDFRecibo
+  //         agendamento={agendamento}
+  //         cobranca={{
+  //           ...cobranca,
+  //           responsavel: cobranca.nomeResponsavel || cobranca.responsavel,
+  //           endereco: cobranca.enderecoCompleto || cobranca.endereco,
+  //         }}
+  //         nomeEmpresa="Wedding App"
+  //         contratada={{
+  //           nome: contrato?.nomeCompleto || "",
+  //           cpf: contrato?.cpf || "",
+  //           endereco: contrato?.enderecoCompleto || "",
+  //           cidadeAssinatura: "Itaúna - MG",
+  //           foro: "Itaúna - MG",
+  //           dataAssinatura: new Date()
+  //         }}
+  //       />
+  //     );
+  //     const blob = await pdf(doc).toBlob();
+  //     const url = URL.createObjectURL(blob);
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.download = `Contrato_${agendamento.id}_${agendamento.Noiva}_e_${agendamento.Noivo}_${new Date().toISOString().split("T")[0]}.pdf`;
+  //     link.click();
+  //     URL.revokeObjectURL(url);
+  //     toast.success("PDF gerado com sucesso!");
       
-      // Atualizar status para "pagamento" quando emitir PDF
-      if (agendamento.status !== "pagamento") {
-        updateStatusMutation.mutate({ id: agendamento.id, status: "pagamento" });
-      }
-    } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-      toast.error("Erro ao gerar PDF");
-    } finally {
-      setIsGeneratingPDF(false);
-    }
-  };
+  //     // Atualizar status para "pagamento" quando emitir PDF
+  //     if (agendamento.status !== "pagamento") {
+  //       updateStatusMutation.mutate({ id: agendamento.id, status: "pagamento" });
+  //     }
+  //   } catch (error) {
+  //     console.error("Erro ao gerar PDF:", error);
+  //     toast.error("Erro ao gerar PDF");
+  //   } finally {
+  //     setIsGeneratingPDF(false);
+  //   }
+  // };
 
   // CPF mask
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -258,7 +258,7 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
             <Button type="button" variant="outline" onClick={onClose} disabled={isPending || isGeneratingPDF}>
               Cancelar
             </Button>
-            {isEdit && cobranca && (
+            {/* {isEdit && cobranca && (
               <Button
                 type="button"
                 variant="secondary"
@@ -268,10 +268,10 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
                 {isGeneratingPDF ? (
                   <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Gerando...</>
                 ) : (
-                  <><Download className="w-4 h-4 mr-2" /> Baixar PDF</>
+                  <><Download className="w-4 h-4 mr-2" /> Baixar Contrato</>
                 )}
               </Button>
-            )}
+            )} */}
             <Button type="submit" disabled={isPending || isGeneratingPDF}>
               {isPending ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {isEdit ? "Salvando..." : "Confirmar..."}</>
