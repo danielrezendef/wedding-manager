@@ -252,7 +252,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm truncate">
-                      {ev.nomeNoiva} & {ev.nomeNoivo}
+                      {ev.descricao}
                     </p>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-xs text-muted-foreground flex items-center gap-1">

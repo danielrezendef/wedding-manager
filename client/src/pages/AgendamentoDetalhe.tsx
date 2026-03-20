@@ -155,7 +155,7 @@ export default function AgendamentoDetalhe() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `Contrato_${data.id}_${data.nomeNoiva}_e_${data.nomeNoivo}_${new Date().toISOString().split("T")[0]}.pdf`;
+      link.download = `Contrato_${data.id}_${data.descricao.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
       toast.success("PDF gerado com sucesso!");
@@ -181,7 +181,7 @@ export default function AgendamentoDetalhe() {
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-xl font-bold">{data.nomeNoiva} & {data.nomeNoivo}</h1>
+            <h1 className="text-xl font-bold">{data.descricao}</h1>
             <StatusBadge status={data.status} />
           </div>
           <p className="text-sm text-muted-foreground mt-0.5">Agendamento #{data.id}</p>
@@ -197,14 +197,15 @@ export default function AgendamentoDetalhe() {
           <Card className="border-border/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <Heart className="w-4 h-4 text-primary" />
+                <Calendar className="w-4 h-4 text-primary" />
                 Dados do Evento
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <InfoItem icon={<User className="w-4 h-4" />} label="Noiva" value={data.nomeNoiva} />
-                <InfoItem icon={<User className="w-4 h-4" />} label="Noivo" value={data.nomeNoivo} />
+                <div className="sm:col-span-2">
+                  <InfoItem icon={<FileText className="w-4 h-4" />} label="Descrição" value={data.descricao} />
+                </div>
                 <InfoItem
                   icon={<Calendar className="w-4 h-4" />}
                   label="Data do Evento"

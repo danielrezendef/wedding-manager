@@ -20,8 +20,7 @@ import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
 const schema = z.object({
-  nomeNoiva: z.string().min(1, "Nome da noiva obrigatório"),
-  nomeNoivo: z.string().min(1, "Nome do noivo obrigatório"),
+  descricao: z.string().min(1, "Descrição do evento obrigatória"),
   dataEvento: z.string().min(1, "Data obrigatória"),
   horario: z.string().min(1, "Horário obrigatório"),
   enderecoCerimonia: z.string().min(1, "Endereço obrigatório"),
@@ -59,8 +58,7 @@ export default function AgendamentoModal({ open, onClose, onSuccess, agendamento
   useEffect(() => {
     if (agendamento) {
       reset({
-        nomeNoiva: agendamento.nomeNoiva,
-        nomeNoivo: agendamento.nomeNoivo,
+        descricao: agendamento.descricao,
         dataEvento: agendamento.dataEvento
           ? format(new Date(agendamento.dataEvento), "yyyy-MM-dd")
           : "",
@@ -115,18 +113,11 @@ export default function AgendamentoModal({ open, onClose, onSuccess, agendamento
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
-          {/* Casal */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="nomeNoiva">Nome da Noiva *</Label>
-              <Input id="nomeNoiva" placeholder="Nome completo da noiva" {...register("nomeNoiva")} />
-              {errors.nomeNoiva && <p className="text-xs text-destructive">{errors.nomeNoiva.message}</p>}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="nomeNoivo">Nome do Noivo *</Label>
-              <Input id="nomeNoivo" placeholder="Nome completo do noivo" {...register("nomeNoivo")} />
-              {errors.nomeNoivo && <p className="text-xs text-destructive">{errors.nomeNoivo.message}</p>}
-            </div>
+          {/* Evento */}
+          <div className="space-y-1.5">
+            <Label htmlFor="descricao">Descrição do Evento *</Label>
+            <Input id="descricao" placeholder="Ex: Casamento de Maria e João, Aniversário de 15 anos, etc." {...register("descricao")} />
+            {errors.descricao && <p className="text-xs text-destructive">{errors.descricao.message}</p>}
           </div>
 
           {/* Data e Hora */}

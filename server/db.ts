@@ -165,8 +165,7 @@ export async function updateUserProfile(userId: number, data: { name?: string; e
 export type AgendamentoFilters = {
   userId?: number;
   status?: "orcamento" | "confirmado" | "pagamento" | "concluido";
-  nomeNoiva?: string;
-  nomeNoivo?: string;
+  descricao?: string;
   dataInicio?: string;
   dataFim?: string;
   page?: number;
@@ -183,8 +182,7 @@ export async function listAgendamentos(filters: AgendamentoFilters = {}) {
   const conditions = [];
   if (filters.userId) conditions.push(eq(agendamentos.userId, filters.userId));
   if (filters.status) conditions.push(eq(agendamentos.status, filters.status));
-  if (filters.nomeNoiva) conditions.push(like(agendamentos.nomeNoiva, `%${filters.nomeNoiva}%`));
-  if (filters.nomeNoivo) conditions.push(like(agendamentos.nomeNoivo, `%${filters.nomeNoivo}%`));
+  if (filters.descricao) conditions.push(like(agendamentos.descricao, `%${filters.descricao}%`));
   if (filters.dataInicio) conditions.push(gte(agendamentos.dataEvento, new Date(filters.dataInicio)));
   if (filters.dataFim) conditions.push(lte(agendamentos.dataEvento, new Date(filters.dataFim)));
 
@@ -213,8 +211,7 @@ export async function getAgendamentoById(id: number) {
 
 export async function createAgendamento(data: {
   userId: number;
-  nomeNoiva: string;
-  nomeNoivo: string;
+  descricao: string;
   dataEvento: Date;
   horario: string;
   enderecoCerimonia: string;
@@ -228,7 +225,7 @@ export async function createAgendamento(data: {
     .select()
     .from(agendamentos)
     .where(
-      and(eq(agendamentos.userId, data.userId), eq(agendamentos.nomeNoiva, data.nomeNoiva))
+      and(eq(agendamentos.userId, data.userId), eq(agendamentos.descricao, data.descricao))
     )
     .orderBy(desc(agendamentos.createdAt))
     .limit(1);
@@ -238,8 +235,7 @@ export async function createAgendamento(data: {
 export async function updateAgendamento(
   id: number,
   data: Partial<{
-    nomeNoiva: string;
-    nomeNoivo: string;
+    descricao: string;
     dataEvento: Date;
     horario: string;
     enderecoCerimonia: string;

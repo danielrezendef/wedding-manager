@@ -32,8 +32,7 @@ export type InsertUser = typeof users.$inferInsert;
 export const agendamentos = mysqlTable("agendamentos", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(), // owner
-  nomeNoiva: varchar("nomeNoiva", { length: 255 }).notNull(),
-  nomeNoivo: varchar("nomeNoivo", { length: 255 }).notNull(),
+  descricao: text("descricao").notNull(),
   dataEvento: date("dataEvento").notNull(),
   horario: time("horario").notNull(),
   enderecoCerimonia: text("enderecoCerimonia").notNull(),

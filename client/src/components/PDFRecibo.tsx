@@ -13,8 +13,7 @@ import { ptBR } from "date-fns/locale";
 interface PDFReciboProps {
   agendamento: {
     id: number;
-    nomeNoiva: string;
-    nomeNoivo: string;
+    descricao: string;
     dataEvento: Date;
     horario: string;
     endereco: string;
@@ -336,12 +335,8 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Dados do Evento</Text>
           <View style={styles.row}>
-            <Text style={styles.label}>Noiva:</Text>
-            <Text style={styles.value}>{agendamento.nomeNoiva}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Noivo:</Text>
-            <Text style={styles.value}>{agendamento.nomeNoivo}</Text>
+            <Text style={styles.label}>Descrição:</Text>
+            <Text style={styles.value}>{agendamento.descricao}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Data do Evento:</Text>
@@ -448,9 +443,9 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
         <Text style={styles.contractSectionTitle}>DO OBJETO DO CONTRATO</Text>
         <Text style={styles.clause}>
           <Text style={styles.bold}>CLÁUSULA 1ª.</Text> O presente contrato tem como
-          objeto a prestação de serviços musicais na cerimônia de{" "}
+          objeto a prestação de serviços musicais no evento{" "}
           <Text style={styles.bold}>
-            {agendamento.nomeNoiva} e {agendamento.nomeNoivo}
+            {agendamento.descricao}
           </Text>
           , por parte da CONTRATADA à CONTRATANTE, no evento a ser realizado no dia{" "}
           <Text style={styles.bold}>

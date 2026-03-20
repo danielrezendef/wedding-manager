@@ -50,7 +50,7 @@ export default function Agendamentos() {
 
   // Filters
   const [search, setSearch] = useState("");
-  const [searchField, setSearchField] = useState<"noiva" | "noivo">("noiva");
+  const [searchField, setSearchField] = useState<"descricao">("descricao");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
@@ -64,13 +64,12 @@ export default function Agendamentos() {
 
   const queryInput = useMemo(() => ({
     status: statusFilter !== "all" ? statusFilter as any : undefined,
-    nomeNoiva: searchField === "noiva" && search ? search : undefined,
-    nomeNoivo: searchField === "noivo" && search ? search : undefined,
+    descricao: search && search ? search : undefined,
     dataInicio: dataInicio || undefined,
     dataFim: dataFim || undefined,
     page,
     pageSize: PAGE_SIZE,
-  }), [statusFilter, search, searchField, dataInicio, dataFim, page]);
+  }), [statusFilter, search, dataInicio, dataFim, page]);
 
   const { data, isLoading } = trpc.agendamentos.list.useQuery(queryInput);
 
@@ -119,19 +118,10 @@ export default function Agendamentos() {
           <div className="flex flex-col sm:flex-row gap-3">
             {/* Search */}
             <div className="flex gap-2 flex-1">
-              <Select value={searchField} onValueChange={(v) => setSearchField(v as any)}>
-                <SelectTrigger className="w-32 shrink-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="noiva">Noiva</SelectItem>
-                  <SelectItem value="noivo">Noivo</SelectItem>
-                </SelectContent>
-              </Select>
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder={`Buscar por nome da ${searchField}...`}
+                  placeholder="Buscar por descrição do evento..."
                   value={search}
                   onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                   className="pl-9"
@@ -203,7 +193,7 @@ export default function Agendamentos() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border/50">
-                    <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Casal</th>
+                    <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Evento</th>
                     <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Data & Hora</th>
                     <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Local</th>
                     <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Valor</th>
@@ -219,7 +209,7 @@ export default function Agendamentos() {
                     >
                       <td className="px-4 py-3.5">
                         <div>
-                          <p className="font-semibold text-sm">{ag.nomeNoiva} & {ag.nomeNoivo}</p>
+                          <p className="font-semibold text-sm">{ag.descricao}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">#{ag.id}</p>
                         </div>
                       </td>
@@ -289,11 +279,9 @@ export default function Agendamentos() {
             <div className="md:hidden divide-y divide-border/30">
               {data?.items.map((ag) => (
                 <div key={ag.id} className="p-4 hover:bg-accent/20 transition-colors">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm">{ag.nomeNoiva} & {ag.nomeNoivo}</p>
-                      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <div className="flex items-start justify-between                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm">{ag.descricao}</p>
+                          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">                      <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {ag.dataEvento ? format(new Date(ag.dataEvento), "dd/MM/yyyy") : "-"}
                         </span>

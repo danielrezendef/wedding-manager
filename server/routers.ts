@@ -235,8 +235,7 @@ const agendamentosRouter = router({
     .input(
       z.object({
         status: z.enum(["orcamento", "confirmado", "pagamento", "concluido"]).optional(),
-        nomeNoiva: z.string().optional(),
-        nomeNoivo: z.string().optional(),
+        descricao: z.string().optional(),
         dataInicio: z.string().optional(),
         dataFim: z.string().optional(),
         page: z.number().min(1).default(1),
@@ -267,8 +266,7 @@ const agendamentosRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        nomeNoiva: z.string().min(1, "Nome da noiva obrigatório"),
-        nomeNoivo: z.string().min(1, "Nome do noivo obrigatório"),
+        descricao: z.string().min(1, "Descrição do evento obrigatória"),
         dataEvento: z.string().min(1, "Data do evento obrigatória"),
         horario: z.string().min(1, "Horário obrigatório"),
         enderecoCerimonia: z.string().min(1, "Endereço obrigatório"),
@@ -289,26 +287,25 @@ const agendamentosRouter = router({
     .input(
       z.object({
         id: z.number(),
-        nomeNoiva: z.string().min(1).optional(),
-        nomeNoivo: z.string().min(1).optional(),
+        descricao: z.string().optional(),
         dataEvento: z.string().optional(),
         horario: z.string().optional(),
         enderecoCerimonia: z.string().optional(),
         valorServico: z.string().optional(),
-        status: z.enum(["orcamento", "confirmado", "pagamento", "concluido"]).optional(),
         observacoes: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const ag = await getAgendamentoById(input.id);
+      const { id, ...data } = input;
+      const ag = await getAgendamentoById(id);
       if (!ag) throw new TRPCError({ code: "NOT_FOUND" });
       if (ctx.user.role !== "admin" && ag.userId !== ctx.user.id) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
-      const { id, dataEvento, ...rest } = input;
-      const updateData: Parameters<typeof updateAgendamento>[1] = { ...rest };
-      if (dataEvento) updateData.dataEvento = new Date(dataEvento);
-      return updateAgendamento(id, updateData);
+      return updateAgendamento(id, {
+        ...data,
+        dataEvento: data.dataEvento ? new Date(data.dataEvento) : undefined,
+      });
     }),
 
   updateStatus: adminProcedure
