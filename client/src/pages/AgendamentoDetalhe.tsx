@@ -17,7 +17,7 @@ import {
   User,
   CreditCard,
   Pencil,
-  Heart,
+  CheckCircle2,
   Phone,
   BadgeCheck,
   ChevronDown,
@@ -97,7 +97,7 @@ export default function AgendamentoDetalhe() {
   if (error || !data) {
     return (
       <div className="text-center py-16">
-        <Heart className="w-12 h-12 text-muted-foreground/25 mx-auto mb-4" />
+          <CheckCircle2 className="w-12 h-12 text-muted-foreground/25 mx-auto mb-4" />
         <p className="font-medium">Agendamento não encontrado</p>
         <Button variant="outline" className="mt-4" onClick={() => navigate("/agendamentos")}>
           <ArrowLeft className="w-4 h-4 mr-2" /> Voltar

@@ -29,7 +29,7 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
-  Heart,
+  CheckSquare,
   X,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -177,7 +177,7 @@ export default function Agendamentos() {
           </CardContent>
         ) : data?.items.length === 0 ? (
           <CardContent className="py-16 text-center">
-            <Heart className="w-12 h-12 text-muted-foreground/25 mx-auto mb-4" />
+            <CheckSquare className="w-12 h-12 text-muted-foreground/25 mx-auto mb-4" />
             <p className="font-medium text-muted-foreground">Nenhum agendamento encontrado</p>
             <p className="text-sm text-muted-foreground/70 mt-1">
               {hasFilters ? "Tente ajustar os filtros" : "Clique em \"Novo agendamento\" para começar"}

@@ -20,7 +20,7 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  Heart,
+  Zap,
   MapPin,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
@@ -271,7 +271,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="text-center py-10">
-              <Heart className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+              <Zap className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-sm text-muted-foreground">Nenhum evento nos próximos 60 dias</p>
             </div>
           )}

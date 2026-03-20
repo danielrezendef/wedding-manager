@@ -27,7 +27,7 @@ import {
   Calendar,
   Users,
   LogOut,
-  Heart,
+  Clock,
   ChevronDown,
   Settings,
   PanelLeft,
@@ -153,7 +153,7 @@ function WeddingLayoutContent({
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
                     style={{ background: "linear-gradient(135deg, oklch(0.50 0.14 10), oklch(0.65 0.12 30))" }}>
-                    <Heart className="w-3.5 h-3.5 text-white" fill="white" />
+                    <Calendar className="w-3.5 h-3.5 text-white" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-bold truncate leading-none">SGA App</p>
@@ -283,7 +283,7 @@ function WeddingLayoutContent({
             <div className="flex items-center gap-3">
               <SidebarTrigger className="h-9 w-9 rounded-lg" />
               <div className="flex items-center gap-2">
-                <Heart className="w-4 h-4 text-primary" fill="currentColor" />
+                <Clock className="w-4 h-4 text-primary" />
                 <span className="font-semibold text-sm">{activeLabel}</span>
               </div>
             </div>

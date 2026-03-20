@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Eye, EyeOff, Heart, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Calendar, Loader2, CheckCircle2, Clock, BarChart3 } from "lucide-react";
 
 // Google SDK types
 interface GoogleAccounts {
@@ -176,7 +176,7 @@ export default function Login() {
       {/* Google Login */}
       <Button
         variant="outline"
-        className="w-full h-11"
+        className="w-full h-11 transition-all duration-300 hover:shadow-md hover:border-primary/50"
         onClick={handleGoogleLogin}
         disabled={socialLoading !== null || !GOOGLE_CLIENT_ID}
         type="button"
@@ -200,72 +200,125 @@ export default function Login() {
   );
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left panel - decorative */}
+    <div className="min-h-screen flex relative overflow-hidden">
+      {/* Animated background elements */}
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        @keyframes pulse-glow {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.6; }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        .animate-pulse-glow {
+          animation: pulse-glow 3s ease-in-out infinite;
+        }
+      `}</style>
+
+      {/* Left panel - decorative with sophisticated design */}
       <div
         className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center relative overflow-hidden"
         style={{
           background: "linear-gradient(135deg, oklch(0.50 0.14 10) 0%, oklch(0.65 0.12 30) 50%, oklch(0.75 0.08 45) 100%)",
         }}
       >
-        <div className="absolute inset-0 opacity-10">
-          {Array.from({ length: 20 }).map((_, i) => (
+        {/* Animated background elements */}
+        <div className="absolute inset-0 opacity-20">
+          {Array.from({ length: 15 }).map((_, i) => (
             <div
               key={i}
-              className="absolute rounded-full"
+              className="absolute rounded-full animate-pulse-glow"
               style={{
-                width: `${Math.random() * 200 + 50}px`,
-                height: `${Math.random() * 200 + 50}px`,
+                width: `${Math.random() * 300 + 100}px`,
+                height: `${Math.random() * 300 + 100}px`,
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                background: "rgba(255,255,255,0.3)",
+                background: "radial-gradient(circle, rgba(255,255,255,0.5), transparent)",
                 transform: "translate(-50%, -50%)",
+                animationDelay: `${i * 0.2}s`,
               }}
             />
           ))}
         </div>
-        <div className="relative z-10 text-center text-white px-12">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <Heart className="w-12 h-12" fill="white" />
+
+        {/* Content */}
+        <div className="relative z-10 text-center text-white px-12 max-w-md">
+          {/* Logo with animation */}
+          <div className="flex items-center justify-center gap-3 mb-8 animate-float">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur-md border border-white/30">
+              <Calendar className="w-8 h-8 text-white" />
+            </div>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4 tracking-tight">SGA App</h1>
-          <p className="text-lg sm:text-xl opacity-90 font-light leading-relaxed">
-            Gerencie seus casamentos com elegância e precisão
+
+          <h1 className="text-4xl sm:text-5xl font-bold mb-4 tracking-tight">SGA App</h1>
+          <p className="text-lg sm:text-xl opacity-90 font-light leading-relaxed mb-12">
+            Organize seus eventos com precisão e elegância
           </p>
-          <div className="mt-8 sm:mt-12 grid grid-cols-2 gap-4 sm:gap-6 text-left">
+
+          {/* Feature cards */}
+          <div className="space-y-4">
             {[
-              { label: "Agendamentos", desc: "Controle completo de eventos" },
-              { label: "Financeiro", desc: "Cobranças e contratos" },
-              { label: "Dashboard", desc: "Indicadores em tempo real" },
-              { label: "Multi-usuário", desc: "Perfis Admin e User" },
-            ].map((item) => (
-              <div key={item.label} className="bg-white/15 rounded-lg sm:rounded-xl p-3 sm:p-4 backdrop-blur-sm">
-                <p className="font-semibold text-xs sm:text-sm">{item.label}</p>
-                <p className="text-xs opacity-80 mt-1">{item.desc}</p>
-              </div>
-            ))}
+              { icon: Calendar, label: "Agendamentos", desc: "Controle completo de eventos" },
+              { icon: Clock, label: "Cronograma", desc: "Organização em tempo real" },
+              { icon: BarChart3, label: "Dashboard", desc: "Indicadores e análises" },
+              { icon: CheckCircle2, label: "Organização", desc: "Gestão simplificada" },
+            ].map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.label}
+                  className="bg-white/10 rounded-xl p-4 backdrop-blur-md border border-white/20 hover:bg-white/15 transition-all duration-300 hover:border-white/40 transform hover:scale-105"
+                  style={{
+                    animation: `float 8s ease-in-out infinite`,
+                    animationDelay: `${idx * 0.15}s`,
+                  }}
+                >
+                  <div className="flex items-start gap-3">
+                    <Icon className="w-5 h-5 text-white/80 mt-1 flex-shrink-0" />
+                    <div className="text-left">
+                      <p className="font-semibold text-sm">{item.label}</p>
+                      <p className="text-xs opacity-75 mt-0.5">{item.desc}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
       {/* Right panel - form */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-8 bg-background">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8 bg-background relative">
+        {/* Subtle background pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: "radial-gradient(circle at 1px 1px, currentColor 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }} />
+        </div>
+
+        <div className="w-full max-w-md relative z-10">
           {/* Mobile logo */}
-          <div className="flex items-center justify-center gap-2 mb-8 lg:hidden">
-            <Heart className="w-7 h-7 text-primary" fill="currentColor" />
-            <span className="text-xl font-bold gradient-text">SGA App</span>
+          <div className="flex items-center justify-center gap-2 mb-8 lg:hidden animate-float">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-primary to-primary/60">
+              <Calendar className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">SGA App</span>
           </div>
 
-          <Card className="border-border/50 shadow-xl shadow-primary/5">
+          <Card className="border-border/50 shadow-2xl shadow-primary/10 backdrop-blur-sm bg-card/95">
             <CardHeader className="space-y-1 pb-6">
               <CardTitle className="text-2xl font-bold">
-                {mode === "login" ? "Entrar na conta" : "Criar conta"}
+                {mode === "login" ? "Bem-vindo de volta" : "Criar sua conta"}
               </CardTitle>
               <CardDescription>
                 {mode === "login"
                   ? "Acesse o sistema de gestão de agendamentos"
-                  : "Preencha os dados para criar sua conta"}
+                  : "Comece a organizar seus eventos agora"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -277,6 +330,7 @@ export default function Login() {
                       id="email"
                       type="email"
                       placeholder="seu@email.com"
+                      className="transition-all duration-300 focus:shadow-md focus:shadow-primary/20"
                       {...loginForm.register("email")}
                     />
                     {loginForm.formState.errors.email && (
@@ -290,6 +344,7 @@ export default function Login() {
                         id="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
+                        className="pr-10 transition-all duration-300 focus:shadow-md focus:shadow-primary/20"
                         {...loginForm.register("password")}
                       />
                       <button
@@ -297,7 +352,11 @@ export default function Login() {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                     {loginForm.formState.errors.password && (
@@ -306,47 +365,66 @@ export default function Login() {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full mt-2"
+                    className="w-full h-11 mt-2 transition-all duration-300 hover:shadow-lg hover:shadow-primary/30"
                     disabled={loginMutation.isPending}
                   >
                     {loginMutation.isPending ? (
-                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Entrando...</>
-                    ) : "Entrar"}
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Entrando...
+                      </>
+                    ) : (
+                      "Entrar"
+                    )}
                   </Button>
-
-                  <SocialButtons />
                 </form>
               ) : (
                 <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Nome completo</Label>
-                    <Input id="name" placeholder="Seu nome" {...registerForm.register("name")} />
+                    <Input
+                      id="name"
+                      placeholder="Seu nome"
+                      className="transition-all duration-300 focus:shadow-md focus:shadow-primary/20"
+                      {...registerForm.register("name")}
+                    />
                     {registerForm.formState.errors.name && (
                       <p className="text-xs text-destructive">{registerForm.formState.errors.name.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="reg-email">E-mail</Label>
-                    <Input id="reg-email" type="email" placeholder="seu@email.com" {...registerForm.register("email")} />
+                    <Label htmlFor="email">E-mail</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="seu@email.com"
+                      className="transition-all duration-300 focus:shadow-md focus:shadow-primary/20"
+                      {...registerForm.register("email")}
+                    />
                     {registerForm.formState.errors.email && (
                       <p className="text-xs text-destructive">{registerForm.formState.errors.email.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="reg-password">Senha</Label>
+                    <Label htmlFor="password">Senha</Label>
                     <div className="relative">
                       <Input
-                        id="reg-password"
+                        id="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Mínimo 6 caracteres"
+                        placeholder="••••••••"
+                        className="pr-10 transition-all duration-300 focus:shadow-md focus:shadow-primary/20"
                         {...registerForm.register("password")}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                     {registerForm.formState.errors.password && (
@@ -354,37 +432,55 @@ export default function Login() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirm">Confirmar senha</Label>
+                    <Label htmlFor="confirmPassword">Confirmar senha</Label>
                     <Input
-                      id="confirm"
-                      type="password"
-                      placeholder="Repita a senha"
+                      id="confirmPassword"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      className="transition-all duration-300 focus:shadow-md focus:shadow-primary/20"
                       {...registerForm.register("confirmPassword")}
                     />
                     {registerForm.formState.errors.confirmPassword && (
                       <p className="text-xs text-destructive">{registerForm.formState.errors.confirmPassword.message}</p>
                     )}
                   </div>
-                  <Button type="submit" className="w-full mt-2" disabled={registerMutation.isPending}>
+                  <Button
+                    type="submit"
+                    className="w-full h-11 mt-2 transition-all duration-300 hover:shadow-lg hover:shadow-primary/30"
+                    disabled={registerMutation.isPending}
+                  >
                     {registerMutation.isPending ? (
-                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Criando conta...</>
-                    ) : "Criar conta"}
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Criando...
+                      </>
+                    ) : (
+                      "Criar conta"
+                    )}
                   </Button>
-
-                  <SocialButtons />
                 </form>
               )}
 
+              <SocialButtons />
+
               <div className="mt-6 text-center text-sm text-muted-foreground">
                 {mode === "login" ? (
-                  <>Não tem conta?{" "}
-                    <button onClick={() => setMode("register")} className="text-primary font-medium hover:underline">
-                      Cadastre-se
+                  <>
+                    Não tem conta?{" "}
+                    <button
+                      onClick={() => setMode("register")}
+                      className="text-primary hover:underline font-medium transition-colors"
+                    >
+                      Criar agora
                     </button>
                   </>
                 ) : (
-                  <>Já tem conta?{" "}
-                    <button onClick={() => setMode("login")} className="text-primary font-medium hover:underline">
+                  <>
+                    Já tem conta?{" "}
+                    <button
+                      onClick={() => setMode("login")}
+                      className="text-primary hover:underline font-medium transition-colors"
+                    >
                       Entrar
                     </button>
                   </>
