@@ -139,7 +139,7 @@ export default function AgendamentoDetalhe() {
             responsavel: cobranca.nomeResponsavel,
             endereco: cobranca.enderecoCompleto,
           }}
-          nomeEmpresa="Wedding App"
+          nomeEmpresa="SGA App"
           contratada={{
             nome: contrato?.nomeCompleto || "",
             cpf: contrato?.cpf || "",

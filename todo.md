@@ -1,4 +1,4 @@
-# Wedding App - TODO
+# SGA App - TODO
 
 ## Schema & Banco de Dados
 - [x] Tabela users (com email/senha para auth JWT personalizada)

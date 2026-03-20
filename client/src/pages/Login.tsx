@@ -59,7 +59,7 @@ export default function Login() {
     onSuccess: async (data) => {
       setUser(data.user);
       await refetch();
-      toast.success("Bem-vindo ao Wedding App!");
+      toast.success("Bem-vindo ao SGA App!");
       navigate("/dashboard");
     },
     onError: (err) => toast.error(err.message || "Credenciais inválidas"),
@@ -228,7 +228,7 @@ export default function Login() {
           <div className="flex items-center justify-center gap-3 mb-8">
             <Heart className="w-12 h-12" fill="white" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4 tracking-tight">Wedding App</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-4 tracking-tight">SGA App</h1>
           <p className="text-lg sm:text-xl opacity-90 font-light leading-relaxed">
             Gerencie seus casamentos com elegância e precisão
           </p>
@@ -254,7 +254,7 @@ export default function Login() {
           {/* Mobile logo */}
           <div className="flex items-center justify-center gap-2 mb-8 lg:hidden">
             <Heart className="w-7 h-7 text-primary" fill="currentColor" />
-            <span className="text-xl font-bold gradient-text">Wedding App</span>
+            <span className="text-xl font-bold gradient-text">SGA App</span>
           </div>
 
           <Card className="border-border/50 shadow-xl shadow-primary/5">
