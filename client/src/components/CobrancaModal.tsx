@@ -125,7 +125,7 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
   //           responsavel: cobranca.nomeResponsavel || cobranca.responsavel,
   //           endereco: cobranca.enderecoCompleto || cobranca.endereco,
   //         }}
-  /          nomeEmpresa="SGA App"
+  //          nomeEmpresa="SGA App"
   //         contratada={{
   //           nome: contrato?.nomeCompleto || "",
   //           cpf: contrato?.cpf || "",

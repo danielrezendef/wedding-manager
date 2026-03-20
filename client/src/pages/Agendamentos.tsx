@@ -21,11 +21,9 @@ import { toast } from "sonner";
 import {
   Plus,
   Search,
-  Filter,
   Calendar,
   Clock,
   MapPin,
-  DollarSign,
   Eye,
   Pencil,
   Trash2,
@@ -50,7 +48,6 @@ export default function Agendamentos() {
 
   // Filters
   const [search, setSearch] = useState("");
-  const [searchField, setSearchField] = useState<"descricao">("descricao");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
@@ -260,7 +257,7 @@ export default function Agendamentos() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-destructive hover:text-destructive"
+                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                               onClick={() => setDeleteId(ag.id)}
                               title="Excluir"
                             >
@@ -279,9 +276,11 @@ export default function Agendamentos() {
             <div className="md:hidden divide-y divide-border/30">
               {data?.items.map((ag) => (
                 <div key={ag.id} className="p-4 hover:bg-accent/20 transition-colors">
-                  <div className="flex items-start justify-between                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm">{ag.descricao}</p>
-                          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm">{ag.descricao}</p>
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {ag.dataEvento ? format(new Date(ag.dataEvento), "dd/MM/yyyy") : "-"}
                         </span>
@@ -302,7 +301,12 @@ export default function Agendamentos() {
                       <Pencil className="w-3.5 h-3.5 mr-1.5" /> Editar
                     </Button>
                     {isAdmin && (
-                      <Button variant="outline" size="sm" className="h-8 text-destructive hover:text-destructive" onClick={() => setDeleteId(ag.id)}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                        onClick={() => setDeleteId(ag.id)}
+                      >
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     )}
@@ -313,39 +317,25 @@ export default function Agendamentos() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t border-border/30">
+              <div className="p-4 border-t border-border/50 flex items-center justify-between">
                 <p className="text-xs text-muted-foreground">
-                  Página {page} de {totalPages} — {data?.total} registros
+                  Página {page} de {totalPages}
                 </p>
-                <div className="flex items-center gap-1">
+                <div className="flex gap-1">
                   <Button
                     variant="outline"
                     size="icon"
                     className="h-8 w-8"
-                    disabled={page <= 1}
+                    disabled={page === 1}
                     onClick={() => setPage(p => p - 1)}
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
-                  {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => {
-                    const p = i + 1;
-                    return (
-                      <Button
-                        key={p}
-                        variant={page === p ? "default" : "outline"}
-                        size="icon"
-                        className="h-8 w-8 text-xs"
-                        onClick={() => setPage(p)}
-                      >
-                        {p}
-                      </Button>
-                    );
-                  })}
                   <Button
                     variant="outline"
                     size="icon"
                     className="h-8 w-8"
-                    disabled={page >= totalPages}
+                    disabled={page === totalPages}
                     onClick={() => setPage(p => p + 1)}
                   >
                     <ChevronRight className="w-4 h-4" />
@@ -357,43 +347,33 @@ export default function Agendamentos() {
         )}
       </Card>
 
-      {/* Create Modal */}
+      {/* Modals */}
       <AgendamentoModal
         open={showCreate}
         onClose={() => setShowCreate(false)}
-        onSuccess={() => {
-          utils.agendamentos.list.invalidate();
-          utils.dashboard.stats.invalidate();
-        }}
+        onSuccess={() => utils.agendamentos.list.invalidate()}
       />
 
-      {/* Edit Modal */}
-      {editItem && (
-        <AgendamentoModal
-          open={!!editItem}
-          onClose={() => setEditItem(null)}
-          agendamento={editItem}
-          onSuccess={() => {
-            utils.agendamentos.list.invalidate();
-            utils.dashboard.stats.invalidate();
-          }}
-        />
-      )}
+      <AgendamentoModal
+        open={!!editItem}
+        agendamento={editItem}
+        onClose={() => setEditItem(null)}
+        onSuccess={() => utils.agendamentos.list.invalidate()}
+      />
 
-      {/* Delete Dialog */}
-      <AlertDialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
+      <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir agendamento</AlertDialogTitle>
+            <AlertDialogTitle>Excluir agendamento?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O agendamento e todos os dados de cobrança vinculados serão permanentemente excluídos.
+              Esta ação não pode ser desfeita. Isso excluirá permanentemente o agendamento e todos os dados de cobrança vinculados.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive hover:bg-destructive/90"
               onClick={() => deleteId && deleteMutation.mutate({ id: deleteId })}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Excluir
             </AlertDialogAction>
