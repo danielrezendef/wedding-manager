@@ -46,7 +46,12 @@ function toDateInputValue(dataEvento: unknown): string {
     if (isoDatePart) return isoDatePart;
   }
 
-  return format(new Date(dataEvento as string | number | Date), "yyyy-MM-dd");
+  const d = new Date(dataEvento as string | number | Date);
+  // Se for string ISO (ex: do banco), adiciona meio-dia para evitar problemas de fuso
+  if (typeof dataEvento === "string" && dataEvento.includes("T")) {
+    d.setHours(12, 0, 0, 0);
+  }
+  return format(d, "yyyy-MM-dd");
 }
 
 export default function AgendamentoModal({ open, onClose, onSuccess, agendamento }: Props) {
