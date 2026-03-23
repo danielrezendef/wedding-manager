@@ -151,11 +151,11 @@ export default function AgendamentoDetalhe() {
           contratada={{
             nome: contrato?.nomeCompleto || "",
             cpf: contrato?.cpf || "",
-            endereco: contrato?.enderecoCompleto || "",
-            cidadeAssinatura: "Itaúna - MG",
+            endereco: contrato ? `${contrato.rua}, ${contrato.numero}${contrato.complemento ? ` - ${contrato.complemento}` : ""}, ${contrato.bairro}, ${contrato.cidade} - ${contrato.estado}${contrato.cep ? `, CEP: ${contrato.cep}` : ""}` : "",
+            cidadeAssinatura: contrato?.cidade ? `${contrato.cidade} - ${contrato.estado}` : "Itaúna - MG",
             dataAssinatura: new Date(),
-            foro: "Itaúna - MG",
-  }}
+            foro: contrato?.cidade ? `${contrato.cidade} - ${contrato.estado}` : "Itaúna - MG",
+          }}
 
         />
       );
