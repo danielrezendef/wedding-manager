@@ -115,7 +115,7 @@ export default function AgendamentoDetalhe() {
   }
 
   const cobranca = data.cobranca;
-  const canAddCobranca = data.status === "orcamento" && !cobranca;
+  const canAddCobranca = !cobranca;
   const canEditCobranca = !!cobranca;
 
   const handleStatusChange = (newStatus: string) => {
@@ -288,7 +288,11 @@ export default function AgendamentoDetalhe() {
                       value={FORMA_PAGAMENTO_LABELS[cobranca.formaPagamento] ?? cobranca.formaPagamento}
                     />
                   </div>
-                  <InfoItem icon={<MapPin className="w-4 h-4" />} label="Endereço" value={`${cobranca.rua}, ${cobranca.numero}${cobranca.complemento ? ` - ${cobranca.complemento}` : ""}, ${cobranca.bairro}, ${cobranca.cidade} - ${cobranca.estado}${cobranca.cep ? `, CEP: ${cobranca.cep}` : ""}`} />
+                    <InfoItem 
+                      icon={<MapPin className="w-4 h-4" />} 
+                      label="Endereço" 
+                      value={cobranca.rua ? `${cobranca.rua}, ${cobranca.numero}${cobranca.complemento ? ` - ${cobranca.complemento}` : ""}, ${cobranca.bairro}, ${cobranca.cidade} - ${cobranca.estado}${cobranca.cep ? `, CEP: ${cobranca.cep}` : ""}` : (cobranca.enderecoCompleto || cobranca.endereco || "-")} 
+                    />
                   <InfoItem icon={<FileText className="w-4 h-4" />} label="Condição de Pagamento" value={cobranca.condicaoPagamento} />
                   <div className="pt-3 border-t border-border/50">
                     <Button 
