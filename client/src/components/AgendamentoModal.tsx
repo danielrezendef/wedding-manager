@@ -38,6 +38,17 @@ type Props = {
   agendamento?: any;
 };
 
+function toDateInputValue(dataEvento: unknown): string {
+  if (!dataEvento) return "";
+
+  if (typeof dataEvento === "string") {
+    const isoDatePart = dataEvento.match(/^\d{4}-\d{2}-\d{2}/)?.[0];
+    if (isoDatePart) return isoDatePart;
+  }
+
+  return format(new Date(dataEvento as string | number | Date), "yyyy-MM-dd");
+}
+
 export default function AgendamentoModal({ open, onClose, onSuccess, agendamento }: Props) {
   const isEdit = !!agendamento;
 
@@ -59,9 +70,7 @@ export default function AgendamentoModal({ open, onClose, onSuccess, agendamento
     if (agendamento) {
       reset({
         descricao: agendamento.descricao,
-        dataEvento: agendamento.dataEvento
-          ? format(new Date(agendamento.dataEvento), "yyyy-MM-dd")
-          : "",
+        dataEvento: toDateInputValue(agendamento.dataEvento),
         horario: agendamento.horario?.slice(0, 5) ?? "",
         enderecoCerimonia: agendamento.enderecoCerimonia,
         valorServico: agendamento.valorServico,
