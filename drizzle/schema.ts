@@ -54,7 +54,13 @@ export const cobrancas = mysqlTable("cobrancas", {
   agendamentoId: int("agendamentoId").notNull().unique(), // 1:1 com agendamento
   nomeResponsavel: varchar("nomeResponsavel", { length: 255 }).notNull(),
   cpf: varchar("cpf", { length: 14 }).notNull(),
-  enderecoCompleto: text("enderecoCompleto").notNull(),
+  cep: varchar("cep", { length: 9 }),
+  rua: varchar("rua", { length: 255 }).notNull(),
+  numero: varchar("numero", { length: 20 }).notNull(),
+  complemento: varchar("complemento", { length: 255 }),
+  bairro: varchar("bairro", { length: 100 }).notNull(),
+  cidade: varchar("cidade", { length: 100 }).notNull(),
+  estado: varchar("estado", { length: 2 }).notNull(),
   valor: decimal("valor", { precision: 10, scale: 2 }).notNull(),
   condicaoPagamento: varchar("condicaoPagamento", { length: 255 }).notNull(),
   formaPagamento: mysqlEnum("formaPagamento", [
@@ -78,7 +84,13 @@ export const contratos = mysqlTable("contratos", {
   userId: int("userId").notNull(), // owner
   nomeCompleto: varchar("nomeCompleto", { length: 255 }).notNull(),
   cpf: varchar("cpf", { length: 14 }).notNull(),
-  enderecoCompleto: text("enderecoCompleto").notNull(),
+  cep: varchar("cep", { length: 9 }),
+  rua: varchar("rua", { length: 255 }).notNull(),
+  numero: varchar("numero", { length: 20 }).notNull(),
+  complemento: varchar("complemento", { length: 255 }),
+  bairro: varchar("bairro", { length: 100 }).notNull(),
+  cidade: varchar("cidade", { length: 100 }).notNull(),
+  estado: varchar("estado", { length: 2 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -435,7 +435,13 @@ const contratosRouter = router({
       z.object({
         nomeCompleto: z.string().min(1, "Nome completo obrigatório"),
         cpf: z.string().min(1, "CPF obrigatório"),
-        enderecoCompleto: z.string().min(1, "Endereço obrigatório"),
+        cep: z.string().optional(),
+        rua: z.string().min(1, "Rua obrigatória"),
+        numero: z.string().min(1, "Número obrigatório"),
+        complemento: z.string().optional(),
+        bairro: z.string().min(1, "Bairro obrigatório"),
+        cidade: z.string().min(1, "Cidade obrigatória"),
+        estado: z.string().min(2, "Estado obrigatório").max(2),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -443,7 +449,13 @@ const contratosRouter = router({
         userId: ctx.user.id,
         nomeCompleto: input.nomeCompleto,
         cpf: input.cpf,
-        enderecoCompleto: input.enderecoCompleto,
+        cep: input.cep,
+        rua: input.rua,
+        numero: input.numero,
+        complemento: input.complemento,
+        bairro: input.bairro,
+        cidade: input.cidade,
+        estado: input.estado,
       });
     }),
 
@@ -453,7 +465,13 @@ const contratosRouter = router({
         id: z.number(),
         nomeCompleto: z.string().optional(),
         cpf: z.string().optional(),
-        enderecoCompleto: z.string().optional(),
+        cep: z.string().optional(),
+        rua: z.string().optional(),
+        numero: z.string().optional(),
+        complemento: z.string().optional(),
+        bairro: z.string().optional(),
+        cidade: z.string().optional(),
+        estado: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -464,7 +482,13 @@ const contratosRouter = router({
       return await updateContrato(input.id, {
         nomeCompleto: input.nomeCompleto ?? contrato.nomeCompleto,
         cpf: input.cpf ?? contrato.cpf,
-        enderecoCompleto: input.enderecoCompleto ?? contrato.enderecoCompleto,
+        cep: input.cep ?? contrato.cep,
+        rua: input.rua ?? contrato.rua,
+        numero: input.numero ?? contrato.numero,
+        complemento: input.complemento ?? contrato.complemento,
+        bairro: input.bairro ?? contrato.bairro,
+        cidade: input.cidade ?? contrato.cidade,
+        estado: input.estado ?? contrato.estado,
       });
     }),
 
