@@ -38,7 +38,7 @@ function Router() {
       </Route>
       <Route path="/agendamentos/:id">
         {(params) => (
-          <ProtectedRoute component={() => <AgendamentoDetalhe />} />
+          <ProtectedRoute component={() => <AgendamentoDetalhe key={params.id} />} />
         )}
       </Route>
       <Route path="/agendamentos">
