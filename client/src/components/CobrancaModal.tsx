@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { pdf } from "@react-pdf/renderer";
 import {
   Dialog,
   DialogContent,
@@ -15,15 +14,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, CreditCard, Download } from "lucide-react";
-import { PDFRecibo } from "./PDFRecibo";
+import { Loader2, CreditCard } from "lucide-react";
 
 const schema = z.object({
   nomeResponsavel: z.string().min(1, "Nome obrigatório"),
   cpf: z.string().min(11, "CPF inválido").max(14),
-  enderecoCompleto: z.string().min(1, "Endereço obrigatório"),
+  cep: z.string().optional(),
+  rua: z.string().min(1, "Rua obrigatória"),
+  numero: z.string().min(1, "Número obrigatório"),
+  complemento: z.string().optional(),
+  bairro: z.string().min(1, "Bairro obrigatório"),
+  cidade: z.string().min(1, "Cidade obrigatória"),
+  estado: z.string().min(2, "Estado obrigatório").max(2),
   valor: z.string().min(1, "Valor obrigatório"),
   condicaoPagamento: z.string().min(1, "Condição de pagamento obrigatória"),
   formaPagamento: z.enum(["pix", "dinheiro", "cartao_credito", "cartao_debito", "transferencia", "boleto"]),
@@ -43,8 +46,8 @@ type Props = {
 
 export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId, cobranca, agendamento, onDownloadPDF }: Props) {
   const isEdit = !!cobranca;
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const { data: contrato } = trpc.contratos.get.useQuery();
+  const [isSearchingCep, setIsSearchingCep] = useState(false);
+  
   const {
     register,
     handleSubmit,
@@ -61,15 +64,23 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
       reset({
         nomeResponsavel: cobranca.nomeResponsavel || cobranca.responsavel,
         cpf: cobranca.cpf,
-        enderecoCompleto: cobranca.enderecoCompleto || cobranca.endereco,
+        cep: cobranca.cep || "",
+        rua: cobranca.rua || "",
+        numero: cobranca.numero || "",
+        complemento: cobranca.complemento || "",
+        bairro: cobranca.bairro || "",
+        cidade: cobranca.cidade || "",
+        estado: cobranca.estado || "",
         valor: cobranca.valor?.toString(),
         condicaoPagamento: cobranca.condicaoPagamento,
         formaPagamento: cobranca.formaPagamento,
       });
     } else {
-      reset({});
+      reset({
+        formaPagamento: "pix",
+      });
     }
-  }, [cobranca, open]);
+  }, [cobranca, open, reset]);
 
   const createMutation = trpc.cobrancas.create.useMutation({
     onSuccess: () => {
@@ -100,64 +111,6 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
   const isPending = createMutation.isPending || updateMutation.isPending;
   const formaPagamento = watch("formaPagamento");
 
-  const updateStatusMutation = trpc.agendamentos.updateStatus.useMutation({
-    onSuccess: () => {
-      toast.success("Status atualizado para Cobrança!");
-    },
-    onError: (err) => {
-      console.error("Erro ao atualizar status:", err);
-    },
-  });
-
-  // const handleDownloadPDF = async () => {
-  //   if (!agendamento || !cobranca) {
-  //     toast.error("Dados incompletos para gerar PDF");
-  //     return;
-  //   }
-
-  //   try {
-  //     setIsGeneratingPDF(true);
-  //     const doc = (
-  //       <PDFRecibo
-  //         agendamento={agendamento}
-  //         cobranca={{
-  //           ...cobranca,
-  //           responsavel: cobranca.nomeResponsavel || cobranca.responsavel,
-  //           endereco: cobranca.enderecoCompleto || cobranca.endereco,
-  //         }}
-  //          nomeEmpresa="SGA App"
-  //         contratada={{
-  //           nome: contrato?.nomeCompleto || "",
-  //           cpf: contrato?.cpf || "",
-  //           endereco: contrato?.enderecoCompleto || "",
-  //           cidadeAssinatura: "Itaúna - MG",
-  //           foro: "Itaúna - MG",
-  //           dataAssinatura: new Date()
-  //         }}
-  //       />
-  //     );
-  //     const blob = await pdf(doc).toBlob();
-  //     const url = URL.createObjectURL(blob);
-  //     const link = document.createElement("a");
-  //     link.href = url;
-  //     link.download = `Contrato_${agendamento.id}_${agendamento.Noiva}_e_${agendamento.Noivo}_${new Date().toISOString().split("T")[0]}.pdf`;
-  //     link.click();
-  //     URL.revokeObjectURL(url);
-  //     toast.success("PDF gerado com sucesso!");
-      
-  //     // Atualizar status para "pagamento" quando emitir PDF
-  //     if (agendamento.status !== "pagamento") {
-  //       updateStatusMutation.mutate({ id: agendamento.id, status: "pagamento" });
-  //     }
-  //   } catch (error) {
-  //     console.error("Erro ao gerar PDF:", error);
-  //     toast.error("Erro ao gerar PDF");
-  //   } finally {
-  //     setIsGeneratingPDF(false);
-  //   }
-  // };
-
-  // CPF mask
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let v = e.target.value.replace(/\D/g, "").slice(0, 11);
     v = v.replace(/(\d{3})(\d)/, "$1.$2");
@@ -166,9 +119,45 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
     setValue("cpf", v);
   };
 
+  const handleCepChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    let v = e.target.value.replace(/\D/g, "").slice(0, 8);
+    if (v.length > 5) {
+      v = v.replace(/(\d{5})(\d)/, "$1-$2");
+    }
+    setValue("cep", v);
+
+    if (v.replace(/\D/g, "").length === 8) {
+      searchCep(v.replace(/\D/g, ""));
+    }
+  };
+
+  const searchCep = async (cep: string) => {
+    setIsSearchingCep(true);
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await response.json();
+      
+      if (data.erro) {
+        toast.error("CEP não encontrado");
+        return;
+      }
+
+      setValue("rua", data.logradouro || watch("rua"));
+      setValue("bairro", data.bairro || watch("bairro"));
+      setValue("cidade", data.localidade || watch("cidade"));
+      setValue("estado", data.uf || watch("estado"));
+      
+      toast.success("Endereço preenchido via CEP");
+    } catch (error) {
+      toast.error("Erro ao buscar CEP");
+    } finally {
+      setIsSearchingCep(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-primary" />
@@ -177,51 +166,87 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
           <DialogDescription>
             {isEdit
               ? "Atualize os dados de cobrança do agendamento"
-              : "Preencha os dados de cobrança para confirmar o agendamento. O status será atualizado automaticamente para Confirmado."}
+              : "Preencha os dados de cobrança para confirmar o agendamento."}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
-          {/* Responsável */}
-          <div className="space-y-1.5">
-            <Label htmlFor="nomeResponsavel">Nome Completo do Responsável *</Label>
-            <Input id="nomeResponsavel" placeholder="Nome completo" {...register("nomeResponsavel")} />
-            {errors.nomeResponsavel && <p className="text-xs text-destructive">{errors.nomeResponsavel.message}</p>}
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5 md:col-span-2">
+              <Label htmlFor="nomeResponsavel">Nome Completo do Responsável *</Label>
+              <Input id="nomeResponsavel" placeholder="Nome completo" {...register("nomeResponsavel")} />
+              {errors.nomeResponsavel && <p className="text-xs text-destructive">{errors.nomeResponsavel.message}</p>}
+            </div>
 
-          {/* CPF */}
-          <div className="space-y-1.5">
-            <Label htmlFor="cpf">CPF *</Label>
-            <Input
-              id="cpf"
-              placeholder="000.000.000-00"
-              {...register("cpf")}
-              onChange={handleCpfChange}
-            />
-            {errors.cpf && <p className="text-xs text-destructive">{errors.cpf.message}</p>}
-          </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cpf">CPF *</Label>
+              <Input
+                id="cpf"
+                placeholder="000.000.000-00"
+                {...register("cpf")}
+                onChange={handleCpfChange}
+              />
+              {errors.cpf && <p className="text-xs text-destructive">{errors.cpf.message}</p>}
+            </div>
 
-          {/* Endereço */}
-          <div className="space-y-1.5">
-            <Label htmlFor="enderecoCompleto">Endereço Completo *</Label>
-            <Textarea
-              id="enderecoCompleto"
-              placeholder="Rua, número, complemento, bairro, cidade, estado, CEP"
-              rows={2}
-              {...register("enderecoCompleto")}
-            />
-            {errors.enderecoCompleto && <p className="text-xs text-destructive">{errors.enderecoCompleto.message}</p>}
-          </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cep">CEP (Opcional)</Label>
+              <div className="relative">
+                <Input
+                  id="cep"
+                  placeholder="00000-000"
+                  {...register("cep")}
+                  onChange={handleCepChange}
+                />
+                {isSearchingCep && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+            </div>
 
-          {/* Valor */}
-          <div className="space-y-1.5">
-            <Label htmlFor="valor">Valor *</Label>
-            <Input id="valor" placeholder="Ex: 3500.00" {...register("valor")} />
-            {errors.valor && <p className="text-xs text-destructive">{errors.valor.message}</p>}
-          </div>
+            <div className="space-y-1.5 md:col-span-2">
+              <Label htmlFor="rua">Rua *</Label>
+              <Input id="rua" placeholder="Rua / Logradouro" {...register("rua")} />
+              {errors.rua && <p className="text-xs text-destructive">{errors.rua.message}</p>}
+            </div>
 
-          {/* Condição e Forma de Pagamento */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="numero">Número *</Label>
+              <Input id="numero" placeholder="Nº" {...register("numero")} />
+              {errors.numero && <p className="text-xs text-destructive">{errors.numero.message}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="complemento">Complemento</Label>
+              <Input id="complemento" placeholder="Apto, Bloco, etc" {...register("complemento")} />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="bairro">Bairro *</Label>
+              <Input id="bairro" placeholder="Bairro" {...register("bairro")} />
+              {errors.bairro && <p className="text-xs text-destructive">{errors.bairro.message}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="cidade">Cidade *</Label>
+              <Input id="cidade" placeholder="Cidade" {...register("cidade")} />
+              {errors.cidade && <p className="text-xs text-destructive">{errors.cidade.message}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="estado">Estado (UF) *</Label>
+              <Input id="estado" placeholder="UF" maxLength={2} {...register("estado")} onChange={(e) => setValue("estado", e.target.value.toUpperCase())} />
+              {errors.estado && <p className="text-xs text-destructive">{errors.estado.message}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="valor">Valor *</Label>
+              <Input id="valor" placeholder="Ex: 3500.00" {...register("valor")} />
+              {errors.valor && <p className="text-xs text-destructive">{errors.valor.message}</p>}
+            </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="condicaoPagamento">Condição de Pagamento *</Label>
               <Input
@@ -245,7 +270,7 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
                   <SelectItem value="pix">PIX</SelectItem>
                   <SelectItem value="dinheiro">Dinheiro</SelectItem>
                   <SelectItem value="cartao_credito">Cartão de Crédito</SelectItem>
-                  <SelectItem value="cartao_debito">Cartão de Débito</SelectItem>
+                  <SelectItem value="cartao_debito">Cartão de Dezbito</SelectItem>
                   <SelectItem value="transferencia">Transferência Bancária</SelectItem>
                   <SelectItem value="boleto">Boleto</SelectItem>
                 </SelectContent>
@@ -254,25 +279,11 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isPending || isGeneratingPDF}>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
               Cancelar
             </Button>
-            {/* {isEdit && cobranca && (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handleDownloadPDF}
-                disabled={isPending || isGeneratingPDF}
-              >
-                {isGeneratingPDF ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Gerando...</>
-                ) : (
-                  <><Download className="w-4 h-4 mr-2" /> Baixar Contrato</>
-                )}
-              </Button>
-            )} */}
-            <Button type="submit" disabled={isPending || isGeneratingPDF}>
+            <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {isEdit ? "Salvando..." : "Confirmar..."}</>
               ) : (

@@ -145,7 +145,7 @@ export default function AgendamentoDetalhe() {
             ...cobranca,
             valor: Number(cobranca.valor),
             responsavel: cobranca.nomeResponsavel,
-            endereco: cobranca.enderecoCompleto,
+            endereco: `${cobranca.rua}, ${cobranca.numero}${cobranca.complemento ? ` - ${cobranca.complemento}` : ""}, ${cobranca.bairro}, ${cobranca.cidade} - ${cobranca.estado}${cobranca.cep ? `, CEP: ${cobranca.cep}` : ""}`,
           }}
           nomeEmpresa="SGA App"
           contratada={{
@@ -288,7 +288,7 @@ export default function AgendamentoDetalhe() {
                       value={FORMA_PAGAMENTO_LABELS[cobranca.formaPagamento] ?? cobranca.formaPagamento}
                     />
                   </div>
-                  <InfoItem icon={<MapPin className="w-4 h-4" />} label="Endereço" value={cobranca.enderecoCompleto} />
+                  <InfoItem icon={<MapPin className="w-4 h-4" />} label="Endereço" value={`${cobranca.rua}, ${cobranca.numero}${cobranca.complemento ? ` - ${cobranca.complemento}` : ""}, ${cobranca.bairro}, ${cobranca.cidade} - ${cobranca.estado}${cobranca.cep ? `, CEP: ${cobranca.cep}` : ""}`} />
                   <InfoItem icon={<FileText className="w-4 h-4" />} label="Condição de Pagamento" value={cobranca.condicaoPagamento} />
                   <div className="pt-3 border-t border-border/50">
                     <Button 

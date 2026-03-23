@@ -350,7 +350,13 @@ const cobrancasRouter = router({
         agendamentoId: z.number(),
         nomeResponsavel: z.string().min(1, "Nome obrigatório"),
         cpf: z.string().min(11, "CPF inválido"),
-        enderecoCompleto: z.string().min(1, "Endereço obrigatório"),
+        cep: z.string().optional(),
+        rua: z.string().min(1, "Rua obrigatória"),
+        numero: z.string().min(1, "Número obrigatório"),
+        complemento: z.string().optional(),
+        bairro: z.string().min(1, "Bairro obrigatório"),
+        cidade: z.string().min(1, "Cidade obrigatória"),
+        estado: z.string().min(2, "Estado obrigatório").max(2),
         valor: z.string().min(1, "Valor obrigatório"),
         condicaoPagamento: z.string().min(1, "Condição de pagamento obrigatória"),
         formaPagamento: z.enum(["pix", "dinheiro", "cartao_credito", "cartao_debito", "transferencia", "boleto"]),
@@ -364,7 +370,7 @@ const cobrancasRouter = router({
       }
       const existing = await getCobrancaByAgendamentoId(input.agendamentoId);
       if (existing) throw new TRPCError({ code: "CONFLICT", message: "Cobrança já cadastrada para este agendamento." });
-      return createCobranca(input);
+      return createCobranca(input as any);
     }),
 
   update: protectedProcedure
@@ -373,7 +379,13 @@ const cobrancasRouter = router({
         agendamentoId: z.number(),
         nomeResponsavel: z.string().min(1).optional(),
         cpf: z.string().optional(),
-        enderecoCompleto: z.string().optional(),
+        cep: z.string().optional(),
+        rua: z.string().optional(),
+        numero: z.string().optional(),
+        complemento: z.string().optional(),
+        bairro: z.string().optional(),
+        cidade: z.string().optional(),
+        estado: z.string().optional(),
         valor: z.string().optional(),
         condicaoPagamento: z.string().optional(),
         formaPagamento: z.enum(["pix", "dinheiro", "cartao_credito", "cartao_debito", "transferencia", "boleto"]).optional(),
@@ -386,7 +398,7 @@ const cobrancasRouter = router({
         throw new TRPCError({ code: "FORBIDDEN" });
       }
       const { agendamentoId, ...rest } = input;
-      return updateCobranca(agendamentoId, rest);
+      return updateCobranca(agendamentoId, rest as any);
     }),
 });
 
