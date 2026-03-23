@@ -78,6 +78,13 @@
       "when": 1773979338115,
       "tag": "0010_wealthy_captain_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1774288995610,
+      "tag": "0011_stale_landau",
+      "breakpoints": true
     }
   ]
 }
