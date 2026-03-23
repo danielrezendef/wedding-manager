@@ -78,9 +78,10 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
     } else {
       reset({
         formaPagamento: "pix",
+        valor: agendamento?.valorServico?.toString() || "",
       });
     }
-  }, [cobranca, open, reset]);
+  }, [cobranca, open, reset, agendamento]);
 
   const createMutation = trpc.cobrancas.create.useMutation({
     onSuccess: () => {
