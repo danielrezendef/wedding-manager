@@ -292,7 +292,7 @@ const agendamentosRouter = router({
     .mutation(async ({ ctx, input }) => {
       const ag = await createAgendamento({
         ...input,
-        dataEvento: new Date(`${input.dataEvento}T12:00:00`),
+        dataEvento: input.dataEvento, // Passa a string "YYYY-MM-DD" diretamente
         userId: ctx.user.id,
       });
       return ag;
@@ -319,7 +319,7 @@ const agendamentosRouter = router({
       }
       return updateAgendamento(id, {
         ...data,
-        dataEvento: data.dataEvento ? new Date(`${data.dataEvento}T12:00:00`) : undefined,
+        dataEvento: data.dataEvento, // Passa a string "YYYY-MM-DD" diretamente
       });
     }),
 

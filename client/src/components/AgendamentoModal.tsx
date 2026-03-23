@@ -41,16 +41,18 @@ type Props = {
 function toDateInputValue(dataEvento: unknown): string {
   if (!dataEvento) return "";
 
+  // Se já for uma string no formato YYYY-MM-DD, retorna direto
   if (typeof dataEvento === "string") {
     const isoDatePart = dataEvento.match(/^\d{4}-\d{2}-\d{2}/)?.[0];
     if (isoDatePart) return isoDatePart;
   }
 
+  // Caso contrário, tenta formatar garantindo que não haja deslocamento de fuso
   const d = new Date(dataEvento as string | number | Date);
-  // Se for string ISO (ex: do banco), adiciona meio-dia para evitar problemas de fuso
-  if (typeof dataEvento === "string" && dataEvento.includes("T")) {
-    d.setHours(12, 0, 0, 0);
-  }
+  if (Number.isNaN(d.getTime())) return "";
+  
+  // Adiciona 12 horas para garantir que a data caia no dia correto independente do fuso local
+  d.setHours(12, 0, 0, 0);
   return format(d, "yyyy-MM-dd");
 }
 

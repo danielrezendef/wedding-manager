@@ -212,7 +212,7 @@ export async function getAgendamentoById(id: number) {
 export async function createAgendamento(data: {
   userId: number;
   descricao: string;
-  dataEvento: Date;
+  dataEvento: string | Date;
   horario: string;
   enderecoCerimonia: string;
   valorServico: string;
@@ -236,7 +236,7 @@ export async function updateAgendamento(
   id: number,
   data: Partial<{
     descricao: string;
-    dataEvento: Date;
+    dataEvento: string | Date;
     horario: string;
     enderecoCerimonia: string;
     valorServico: string;
