@@ -41,6 +41,13 @@ function formatCurrency(value: string | number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(value));
 }
 
+function formatDateSafe(value: string | Date | null | undefined, fmt: string) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  return format(date, fmt, { locale: ptBR });
+}
+
 const FORMA_PAGAMENTO_LABELS: Record<string, string> = {
   pix: "PIX",
   dinheiro: "Dinheiro",
@@ -52,7 +59,8 @@ const FORMA_PAGAMENTO_LABELS: Record<string, string> = {
 
 export default function AgendamentoDetalhe() {
   const params = useParams<{ id: string }>();
-  const id = parseInt(params.id ?? "0");
+  const id = Number.parseInt(params.id ?? "", 10);
+  const hasValidId = Number.isFinite(id) && id > 0;
   const [, navigate] = useLocation();
   const { isAdmin } = useAppAuth();
   const utils = trpc.useUtils();
@@ -77,7 +85,7 @@ export default function AgendamentoDetalhe() {
 
   const { data, isLoading, error } = trpc.agendamentos.byId.useQuery(
     { id },
-    { enabled: !!id }
+    { enabled: hasValidId }
   );
   
   const { data: contrato } = trpc.contratos.get.useQuery();
@@ -94,7 +102,7 @@ export default function AgendamentoDetalhe() {
     );
   }
 
-  if (error || !data) {
+  if (!hasValidId || error || !data) {
     return (
       <div className="text-center py-16">
           <CheckCircle2 className="w-12 h-12 text-muted-foreground/25 mx-auto mb-4" />
@@ -209,7 +217,7 @@ export default function AgendamentoDetalhe() {
                 <InfoItem
                   icon={<Calendar className="w-4 h-4" />}
                   label="Data do Evento"
-                  value={data.dataEvento ? format(new Date(data.dataEvento), "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : "-"}
+                  value={formatDateSafe(data.dataEvento, "dd 'de' MMMM 'de' yyyy")}
                 />
                 <InfoItem
                   icon={<Clock className="w-4 h-4" />}
@@ -346,13 +354,13 @@ export default function AgendamentoDetalhe() {
               <div>
                 <p className="text-xs text-muted-foreground">Criado em</p>
                 <p className="text-sm font-medium mt-0.5">
-                  {format(new Date(data.createdAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                  {formatDateSafe(data.createdAt, "dd/MM/yyyy 'às' HH:mm")}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Última atualização</p>
                 <p className="text-sm font-medium mt-0.5">
-                  {format(new Date(data.updatedAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                  {formatDateSafe(data.updatedAt, "dd/MM/yyyy 'às' HH:mm")}
                 </p>
               </div>
             </CardContent>
