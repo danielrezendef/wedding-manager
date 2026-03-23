@@ -270,15 +270,7 @@ export async function getCobrancaByAgendamentoId(agendamentoId: number) {
   return result[0];
 }
 
-export async function createCobranca(data: {
-  agendamentoId: number;
-  nomeResponsavel: string;
-  cpf: string;
-  enderecoCompleto: string;
-  valor: string;
-  condicaoPagamento: string;
-  formaPagamento: "pix" | "dinheiro" | "cartao_credito" | "cartao_debito" | "transferencia" | "boleto";
-}) {
+export async function createCobranca(data: any) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.insert(cobrancas).values(data);
@@ -292,14 +284,7 @@ export async function createCobranca(data: {
 
 export async function updateCobranca(
   agendamentoId: number,
-  data: Partial<{
-    nomeResponsavel: string;
-    cpf: string;
-    enderecoCompleto: string;
-    valor: string;
-    condicaoPagamento: string;
-    formaPagamento: "pix" | "dinheiro" | "cartao_credito" | "cartao_debito" | "transferencia" | "boleto";
-  }>
+  data: any
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

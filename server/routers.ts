@@ -254,13 +254,28 @@ const agendamentosRouter = router({
   byId: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
-      const ag = await getAgendamentoById(input.id);
-      if (!ag) throw new TRPCError({ code: "NOT_FOUND" });
-      if (ctx.user.role !== "admin" && ag.userId !== ctx.user.id) {
-        throw new TRPCError({ code: "FORBIDDEN" });
+      try {
+        const ag = await getAgendamentoById(input.id);
+        if (!ag) throw new TRPCError({ code: "NOT_FOUND", message: `Agendamento ${input.id} não encontrado no banco.` });
+        
+        if (ctx.user.role !== "admin" && ag.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem permissão para ver este agendamento." });
+        }
+        
+        let cobranca = null;
+        try {
+          cobranca = await getCobrancaByAgendamentoId(ag.id);
+        } catch (error) {
+          console.error("Erro ao buscar cobrança:", error);
+          // Se falhar a cobrança por erro de coluna, retornamos o agendamento sem ela para não quebrar a tela
+        }
+        
+        return { ...ag, cobranca: cobranca ?? null };
+      } catch (error: any) {
+        console.error("Erro no byId:", error);
+        if (error instanceof TRPCError) throw error;
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error.message });
       }
-      const cobranca = await getCobrancaByAgendamentoId(ag.id);
-      return { ...ag, cobranca: cobranca ?? null };
     }),
 
   create: protectedProcedure
@@ -459,15 +474,7 @@ const contratosRouter = router({
     .mutation(async ({ ctx, input }) => {
       return await createContrato({
         userId: ctx.user.id,
-        nomeCompleto: input.nomeCompleto,
-        cpf: input.cpf,
-        cep: input.cep,
-        rua: input.rua,
-        numero: input.numero,
-        complemento: input.complemento,
-        bairro: input.bairro,
-        cidade: input.cidade,
-        estado: input.estado,
+        ...input
       });
     }),
 
