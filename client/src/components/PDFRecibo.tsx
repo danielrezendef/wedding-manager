@@ -47,7 +47,7 @@ interface PDFReciboProps {
 
 const styles = StyleSheet.create({
   header: {
-    marginBottom: 8,
+    marginBottom: 2,
   },
   page: {
   paddingTop: 15,
@@ -113,7 +113,7 @@ logo: {
     flex: 1,
   },
   footer: {
-    marginTop: 40,
+    marginTop: 30,
     paddingTop: 20,
     borderTopWidth: 1,
     borderTopColor: "#e0e0e0",
