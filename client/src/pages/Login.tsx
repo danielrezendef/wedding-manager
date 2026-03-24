@@ -305,14 +305,10 @@ export default function Login() {
 
         <div className="w-full max-w-md relative z-10">
           {/* Mobile logo */}
-          
-            <div className="flex justify-center -mt-4">
-              <img src={logoImg} alt="SGA App Logo" className="h-30 w-auto object-contain" />
-            </div>
-
-            
-
-          <Card className="border-border/50 shadow-2xl shadow-primary/10 backdrop-blur-sm bg-card/95">
+          <div className="flex justify-center -mt-4">
+            <img src={logoImg} alt="SGA App Logo" className="h-60 w-auto object-contain" />
+          </div>
+          <Card className="-mt-6 border-border/50 shadow-2xl shadow-primary/10 backdrop-blur-sm bg-card/95">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-bold">
                 {mode === "login" ? "Seja Bem-vindo" : "Criar sua conta"}
