@@ -10,6 +10,7 @@ import {
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatDateSafe } from "@shared/dateUtils";
+import logoImg from "@/assets/logo.png";
 
 interface PDFReciboProps {
   agendamento: {
@@ -46,16 +47,22 @@ interface PDFReciboProps {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
-    fontFamily: "Helvetica",
-    backgroundColor: "#ffffff",
-  },
-  header: {
-    marginBottom: 30,
-    borderBottomWidth: 2,
-    borderBottomColor: "#c41e3a",
-    paddingBottom: 15,
-  },
+  paddingTop: 15,
+  paddingRight: 40,
+  paddingBottom: 40,
+  paddingLeft: 40,
+  fontFamily: "Helvetica",
+  backgroundColor: "#ffffff",
+},
+
+logo: {
+  width: 480,
+  height: 160,
+  objectFit: "contain",
+  alignSelf: "flex-start",
+  marginBottom: 0,
+  marginLeft: -126,
+},
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -309,8 +316,7 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
       {/* RECIBO */}
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>{nomeEmpresa}</Text>
-          <Text style={styles.subtitle}>Gestão de Agendamentos</Text>
+          <Image style={styles.logo} src={logoImg} />
         </View>
 
         <View style={styles.section}>
@@ -404,7 +410,7 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
             {format(dataEmissao, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
           </Text>
           <Text style={{ marginTop: 10 }}>
-            Este recibo é válido como comprovante de cobrança do serviço de cerimonial.
+            Este recibo é válido como comprovante de cobrança do serviço.
           </Text>
         </View>
       </Page>
