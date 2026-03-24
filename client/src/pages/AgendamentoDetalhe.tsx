@@ -160,8 +160,12 @@ export default function AgendamentoDetalhe() {
       const blob = await pdf(doc).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
+      const descricaoArquivo = (data.descricao || "sem_descricao")
+        .trim()
+        .replace(/[^a-zA-Z0-9\s_-]/g, "")
+        .replace(/\s+/g, "_");
       link.href = url;
-      link.download = `Contrato_${data.id}_${data.descricao.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`;
+      link.download = `Contrato_${data.id}_${descricaoArquivo}_${new Date().toISOString().split("T")[0]}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
       toast.success("PDF gerado com sucesso!");

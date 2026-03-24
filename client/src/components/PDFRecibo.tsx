@@ -46,6 +46,9 @@ interface PDFReciboProps {
 }
 
 const styles = StyleSheet.create({
+  header: {
+    marginBottom: 8,
+  },
   page: {
   paddingTop: 15,
   paddingRight: 40,
