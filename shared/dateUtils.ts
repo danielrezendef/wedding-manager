@@ -10,7 +10,10 @@ export function parseDateSafe(date: string | Date | null | undefined): Date | nu
   let d: Date;
 
   if (date instanceof Date) {
-    d = date;
+    // Para campos DATE vindos do banco, muitos drivers retornam meia-noite em UTC.
+    // Se usarmos getFullYear/getMonth/getDate no fuso local, pode "voltar um dia".
+    // Extraímos os componentes em UTC e reconstruímos uma data local fixa ao meio-dia.
+    return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 12, 0, 0);
   } else if (typeof date === "string") {
     // Check if it's a simple YYYY-MM-DD string
     const match = date.match(/^(\d{4})-(\d{2})-(\d{2})/);

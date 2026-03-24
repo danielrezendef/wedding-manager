@@ -390,7 +390,8 @@ export async function getDashboardStats(userId?: number) {
   const porMesMap = new Map<string, number>();
   for (const r of porMes) {
     if (!r.dataEvento) continue;
-    const d = new Date(r.dataEvento);
+    const d = parseDateSafe(r.dataEvento);
+    if (!d) continue;
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     porMesMap.set(key, (porMesMap.get(key) ?? 0) + 1);
   }
@@ -472,5 +473,4 @@ export async function deleteContrato(id: number): Promise<void> {
 
   await db.delete(contratos).where(eq(contratos.id, id));
 }
-
 

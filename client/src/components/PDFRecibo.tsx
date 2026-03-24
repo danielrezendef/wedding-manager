@@ -448,7 +448,7 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
           </Text>
           , por parte da CONTRATADA à CONTRATANTE, no evento a ser realizado no dia{" "}
           <Text style={styles.bold}>
-            {format(new Date(agendamento.dataEvento), "dd/MM/yyyy", { locale: ptBR })}
+            {formatDateSafe(agendamento.dataEvento, "dd/MM/yyyy")}
           </Text>
           .
         </Text>
@@ -476,7 +476,7 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
           <Text style={styles.bold}>{agendamento.endereco}</Text>, às{" "}
           <Text style={styles.bold}>{agendamento.horario}</Text> horas do dia{" "}
           <Text style={styles.bold}>
-            {format(new Date(agendamento.dataEvento), "dd/MM/yyyy", { locale: ptBR })}
+            {formatDateSafe(agendamento.dataEvento, "dd/MM/yyyy")}
           </Text>
           , devendo a CONTRATADA comparecer ao local com 1 (uma) hora de antecedência
           para a execução das atividades previstas neste instrumento.

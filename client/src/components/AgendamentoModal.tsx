@@ -17,8 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
-import { format } from "date-fns";
-import { parseDateSafe, toISODateString } from "@shared/dateUtils";
+import { toISODateString } from "@shared/dateUtils";
 
 const schema = z.object({
   descricao: z.string().min(1, "Descrição do evento obrigatória"),
