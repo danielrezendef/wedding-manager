@@ -7,32 +7,31 @@ import { format, parseISO } from "date-fns";
 export function parseDateSafe(date: string | Date | null | undefined): Date | null {
   if (!date) return null;
   
-  if (typeof date === "string") {
-    // If it's just YYYY-MM-DD, parse it manually to avoid UTC shift
+  let d: Date;
+
+  if (date instanceof Date) {
+    d = date;
+  } else if (typeof date === "string") {
+    // Check if it's a simple YYYY-MM-DD string
     const match = date.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (match) {
       const year = parseInt(match[1], 10);
       const month = parseInt(match[2], 10) - 1;
       const day = parseInt(match[3], 10);
-      // Create date at noon in local time to avoid any DST or timezone edge cases
       return new Date(year, month, day, 12, 0, 0);
     }
     
-    // Otherwise try parseISO
-    const parsed = parseISO(date);
-    if (!isNaN(parsed.getTime())) {
-      parsed.setHours(12, 0, 0, 0);
-      return parsed;
-    }
+    d = parseISO(date);
+  } else {
+    return null;
   }
-  
-  if (date instanceof Date) {
-    const d = new Date(date.getTime());
-    d.setHours(12, 0, 0, 0);
-    return d;
-  }
-  
-  return null;
+
+  if (isNaN(d.getTime())) return null;
+
+  // If we have a full Date object (possibly from superjson/database), 
+  // we want to extract the year, month, and day as they appear in the object
+  // but ensure we are at noon to avoid any timezone/DST shifts when formatting.
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
 }
 
 /**
@@ -45,10 +44,14 @@ export function formatDateSafe(date: string | Date | null | undefined, formatStr
 }
 
 /**
- * Converts a date to YYYY-MM-DD string safely.
+ * Converts a date to YYYY-MM-DD string safely for HTML date inputs.
  */
 export function toISODateString(date: string | Date | null | undefined): string {
   const d = parseDateSafe(date);
   if (!d) return "";
-  return format(d, "yyyy-MM-dd");
+  
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
