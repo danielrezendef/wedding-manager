@@ -28,7 +28,6 @@ import {
   Users,
   LogOut,
   Clock,
-  ChevronDown,
   Settings,
   PanelLeft,
   Shield,
@@ -38,6 +37,7 @@ import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { useIsMobile } from "@/hooks/useMobile";
 import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
+import logoImg from "@/assets/logo.png";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
@@ -141,24 +141,22 @@ function WeddingLayoutContent({
       <div className="relative" ref={sidebarRef}>
         <Sidebar collapsible="icon" className="border-r border-border/60" disableTransition={isResizing}>
           {/* Header */}
-          <SidebarHeader className="h-16 justify-center border-b border-border/40">
-            <div className="flex items-center gap-3 px-2">
+          <SidebarHeader className="h-20 border-b border-border/40 px-1">
+            <div className="flex items-center w-full gap-2">
               <button
                 onClick={toggleSidebar}
-                className="h-9 w-9 flex items-center justify-center hover:bg-accent rounded-lg transition-colors shrink-0"
+                className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-accent transition-colors shrink-0"
               >
                 <PanelLeft className="h-4 w-4 text-muted-foreground" />
               </button>
+
               {!isCollapsed && (
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: "linear-gradient(135deg, oklch(0.50 0.14 10), oklch(0.65 0.12 30))" }}>
-                    <Calendar className="w-3.5 h-3.5 text-white" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold truncate leading-none">SGA App</p>
-                    <p className="text-[10px] text-muted-foreground truncate mt-0.5">Gestão de Agendamentos</p>
-                  </div>
+                <div className="flex items-center min-w-0">
+                  <img
+                    src={logoImg}
+                    alt="SGA App Logo"
+                    className="h-20 w-auto object-contain"
+                  />
                 </div>
               )}
             </div>
@@ -283,7 +281,6 @@ function WeddingLayoutContent({
             <div className="flex items-center gap-3">
               <SidebarTrigger className="h-9 w-9 rounded-lg" />
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-primary" />
                 <span className="font-semibold text-sm">{activeLabel}</span>
               </div>
             </div>

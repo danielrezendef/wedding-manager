@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Eye, EyeOff, Calendar, Loader2, CheckCircle2, Clock, BarChart3 } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 
 // Google SDK types
 interface GoogleAccounts {
@@ -247,16 +248,15 @@ export default function Login() {
 
         {/* Content */}
         <div className="relative z-10 text-center text-white px-12 max-w-md">
-          {/* Logo with animation */}
-          <div className="flex items-center justify-center gap-3 mb-8 animate-float">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur-md border border-white/30">
-              <Calendar className="w-8 h-8 text-white" />
-            </div>
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4 tracking-tight">SGA App</h1>
+            {/* <div className="flex justify-center -mt-12 mb-6">
+              <img
+                src={logoImg}
+                alt="SGA App Logo"
+                className="h-40 md:h-45 w-auto object-contain drop-shadow-2xl"
+              />
+            </div> */}
           <p className="text-lg sm:text-xl opacity-90 font-light leading-relaxed mb-12">
-            Organize seus eventos com precisão e elegância
+            Organize seus agendamentos com precisão e elegância
           </p>
 
           {/* Feature cards */}
@@ -269,7 +269,7 @@ export default function Login() {
             ].map((item, idx) => {
               const Icon = item.icon;
               return (
-                <div
+                <div      
                   key={item.label}
                   className="bg-white/10 rounded-xl p-4 backdrop-blur-md border border-white/20 hover:bg-white/15 transition-all duration-300 hover:border-white/40 transform hover:scale-105"
                   style={{
@@ -277,8 +277,10 @@ export default function Login() {
                     animationDelay: `${idx * 0.15}s`,
                   }}
                 >
-                  <div className="flex items-start gap-3">
-                    <Icon className="w-5 h-5 text-white/80 mt-1 flex-shrink-0" />
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+                      <Icon className="w-5 h-5 text-white" />
+                    </div>
                     <div className="text-left">
                       <p className="font-semibold text-sm">{item.label}</p>
                       <p className="text-xs opacity-75 mt-0.5">{item.desc}</p>
@@ -303,23 +305,18 @@ export default function Login() {
 
         <div className="w-full max-w-md relative z-10">
           {/* Mobile logo */}
-          <div className="flex items-center justify-center gap-2 mb-8 lg:hidden animate-float">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-primary to-primary/60">
-              <Calendar className="w-6 h-6 text-white" />
+          
+            <div className="flex justify-center -mt-4">
+              <img src={logoImg} alt="SGA App Logo" className="h-30 w-auto object-contain" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">SGA App</span>
-          </div>
+
+            
 
           <Card className="border-border/50 shadow-2xl shadow-primary/10 backdrop-blur-sm bg-card/95">
-            <CardHeader className="space-y-1 pb-6">
+            <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-bold">
-                {mode === "login" ? "Bem-vindo de volta" : "Criar sua conta"}
+                {mode === "login" ? "Seja Bem-vindo" : "Criar sua conta"}
               </CardTitle>
-              <CardDescription>
-                {mode === "login"
-                  ? "Acesse o sistema de gestão de agendamentos"
-                  : "Comece a organizar seus eventos agora"}
-              </CardDescription>
             </CardHeader>
             <CardContent>
               {mode === "login" ? (
