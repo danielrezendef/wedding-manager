@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { parseDateSafe, toISODateString } from "@shared/dateUtils";
 
 const schema = z.object({
   descricao: z.string().min(1, "Descrição do evento obrigatória"),
@@ -39,21 +40,7 @@ type Props = {
 };
 
 function toDateInputValue(dataEvento: unknown): string {
-  if (!dataEvento) return "";
-
-  // Se já for uma string no formato YYYY-MM-DD, retorna direto
-  if (typeof dataEvento === "string") {
-    const isoDatePart = dataEvento.match(/^\d{4}-\d{2}-\d{2}/)?.[0];
-    if (isoDatePart) return isoDatePart;
-  }
-
-  // Caso contrário, tenta formatar garantindo que não haja deslocamento de fuso
-  const d = new Date(dataEvento as string | number | Date);
-  if (Number.isNaN(d.getTime())) return "";
-  
-  // Adiciona 12 horas para garantir que a data caia no dia correto independente do fuso local
-  d.setHours(12, 0, 0, 0);
-  return format(d, "yyyy-MM-dd");
+  return toISODateString(dataEvento as any);
 }
 
 export default function AgendamentoModal({ open, onClose, onSuccess, agendamento }: Props) {

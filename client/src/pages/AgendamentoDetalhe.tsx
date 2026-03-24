@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { formatDateSafe as formatDateSafeShared } from "@shared/dateUtils";
 import StatusBadge from "@/components/StatusBadge";
 import AgendamentoModal from "@/components/AgendamentoModal";
 import CobrancaModal from "@/components/CobrancaModal";
@@ -42,10 +43,7 @@ function formatCurrency(value: string | number) {
 }
 
 function formatDateSafe(value: string | Date | null | undefined, fmt: string) {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "-";
-  return format(date, fmt, { locale: ptBR });
+  return formatDateSafeShared(value, fmt);
 }
 
 const FORMA_PAGAMENTO_LABELS: Record<string, string> = {

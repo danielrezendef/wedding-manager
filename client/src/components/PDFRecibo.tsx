@@ -9,6 +9,7 @@ import {
 } from "@react-pdf/renderer";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { formatDateSafe } from "@shared/dateUtils";
 
 interface PDFReciboProps {
   agendamento: {
@@ -341,9 +342,7 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
           <View style={styles.row}>
             <Text style={styles.label}>Data do Evento:</Text>
             <Text style={styles.value}>
-              {format(new Date(agendamento.dataEvento), "dd 'de' MMMM 'de' yyyy", {
-                locale: ptBR,
-              })}
+              {formatDateSafe(agendamento.dataEvento, "dd 'de' MMMM 'de' yyyy")}
             </Text>
           </View>
           <View style={styles.row}>

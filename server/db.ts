@@ -1,5 +1,6 @@
 import { and, asc, count, desc, eq, gte, ilike, like, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import { parseDateSafe } from "../shared/dateUtils";
 import { agendamentos, cobrancas, contratos, InsertUser, users, Contrato, InsertContrato } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -183,8 +184,8 @@ export async function listAgendamentos(filters: AgendamentoFilters = {}) {
   if (filters.userId) conditions.push(eq(agendamentos.userId, filters.userId));
   if (filters.status) conditions.push(eq(agendamentos.status, filters.status));
   if (filters.descricao) conditions.push(like(agendamentos.descricao, `%${filters.descricao}%`));
-  if (filters.dataInicio) conditions.push(gte(agendamentos.dataEvento, new Date(filters.dataInicio)));
-  if (filters.dataFim) conditions.push(lte(agendamentos.dataEvento, new Date(filters.dataFim)));
+  if (filters.dataInicio) conditions.push(gte(agendamentos.dataEvento, parseDateSafe(filters.dataInicio) as Date));
+  if (filters.dataFim) conditions.push(lte(agendamentos.dataEvento, parseDateSafe(filters.dataFim) as Date));
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
 
