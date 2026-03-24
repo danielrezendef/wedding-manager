@@ -32,8 +32,6 @@ import {
   CheckSquare,
   X,
 } from "lucide-react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { formatDateSafe } from "@shared/dateUtils";
 import StatusBadge from "@/components/StatusBadge";
 import AgendamentoModal from "@/components/AgendamentoModal";
@@ -283,7 +281,7 @@ export default function Agendamentos() {
                       <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          {ag.dataEvento ? format(new Date(ag.dataEvento), "dd/MM/yyyy") : "-"}
+                          {formatDateSafe(ag.dataEvento)}
                         </span>
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <Clock className="w-3 h-3" />

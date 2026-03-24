@@ -23,10 +23,9 @@ import {
   Zap,
   MapPin,
 } from "lucide-react";
-import { format, parseISO } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { useLocation } from "wouter";
 import StatusBadge from "@/components/StatusBadge";
+import { formatDateSafe } from "@shared/dateUtils";
 
 const MONTH_NAMES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
@@ -244,10 +243,10 @@ export default function Dashboard() {
                 >
                   <div className="w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 bg-primary/8 border border-primary/15">
                     <span className="text-[10px] font-medium text-primary uppercase">
-                      {ev.dataEvento ? format(new Date(ev.dataEvento), "MMM", { locale: ptBR }) : ""}
+                      {formatDateSafe(ev.dataEvento, "MMM")}
                     </span>
                     <span className="text-lg font-bold text-primary leading-none">
-                      {ev.dataEvento ? format(new Date(ev.dataEvento), "dd") : ""}
+                      {formatDateSafe(ev.dataEvento, "dd")}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
