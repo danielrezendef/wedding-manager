@@ -8,8 +8,10 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Plus,
+  Calendar as CalendarIcon,
   Clock,
   MapPin,
+  AlertCircle
 } from "lucide-react";
 import AgendamentoModal from "@/components/AgendamentoModal";
 import { formatDateSafe, toISODateString } from "@shared/dateUtils";
@@ -34,23 +36,27 @@ export default function Calendario() {
     const month = currentDate.getMonth();
     
     if (view === "month") {
+      // Pega do dia 1 ao último dia do mês
       const start = new Date(year, month, 1, 12, 0, 0);
       const end = new Date(year, month + 1, 0, 12, 0, 0);
       return { start: toISODateString(start), end: toISODateString(end) };
     } else if (view === "week") {
+      // Pega o início e fim da semana
       const start = new Date(currentDate);
       start.setDate(currentDate.getDate() - currentDate.getDay());
       const end = new Date(start);
       end.setDate(start.getDate() + 6);
       return { start: toISODateString(start), end: toISODateString(end) };
     } else {
+      // Apenas o dia atual
       const dayStr = toISODateString(currentDate);
       return { start: dayStr, end: dayStr };
     }
   }, [currentDate, view]);
 
   // Busca agendamentos filtrados pelo período visível
-  const { data, isLoading, refetch } = trpc.agendamentos.list.useQuery({
+  // Isso garante que mesmo com o limite de 50 por página, os eventos do mês/semana apareçam
+  const { data, isLoading, error, refetch } = trpc.agendamentos.list.useQuery({
     dataInicio: dateRange.start,
     dataFim: dateRange.end,
     pageSize: 50, 
@@ -114,7 +120,7 @@ export default function Calendario() {
     const cells = [];
 
     for (let i = 0; i < firstDayIdx; i++) {
-      cells.push(<div key={`p-${i}`} className="h-24 bg-muted/30 border border-border/50" />);
+      cells.push(<div key={`p-${i}`} className="h-24 sm:h-32 bg-muted/5 border border-border/10" />);
     }
 
     for (let d = 1; d <= daysInMonth; d++) {
@@ -126,22 +132,22 @@ export default function Calendario() {
       cells.push(
         <div
           key={dateStr}
-          className={`h-24 p-2 border border-border/50 transition-colors hover:bg-accent/50 cursor-pointer flex flex-col overflow-hidden ${
-            isToday ? "bg-primary/5 ring-1 ring-inset ring-primary/30" : "bg-background"
+          className={`h-24 sm:h-32 p-1 sm:p-2 border border-border/40 transition-all hover:bg-accent/30 cursor-pointer flex flex-col overflow-hidden ${
+            isToday ? "bg-primary/5 ring-1 ring-inset ring-primary/20" : "bg-background"
           }`}
           onClick={() => {
             setCurrentDate(date);
             setView("day");
           }}
         >
-          <span className={`text-xs font-semibold ${isToday ? "text-primary font-bold" : "text-muted-foreground"}`}>
+          <span className={`text-xs font-bold mb-1 ${isToday ? "text-primary" : "text-muted-foreground/70"}`}>
             {d}
           </span>
-          <div className="flex-1 space-y-1 overflow-y-auto scrollbar-hide mt-1">
+          <div className="flex-1 space-y-1 overflow-y-auto scrollbar-hide">
             {events.map(ev => (
               <div
                 key={ev.id}
-                className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 truncate font-medium"
+                className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/10 truncate font-semibold"
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(`/agendamentos/${ev.id}`);
@@ -156,9 +162,9 @@ export default function Calendario() {
     }
 
     return (
-      <div className="grid grid-cols-7 gap-px bg-border/50 border border-border/50 rounded-lg overflow-hidden">
-        {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map(day => (
-          <div key={day} className="bg-muted/50 py-2 text-center text-xs font-semibold text-muted-foreground uppercase">
+      <div className="grid grid-cols-7 gap-px bg-border/30 border border-border/30 rounded-xl overflow-hidden shadow-sm">
+        {["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"].map(day => (
+          <div key={day} className="bg-muted/20 py-2 text-center text-[10px] font-black text-muted-foreground/60 tracking-tighter">
             {day}
           </div>
         ))}
@@ -174,7 +180,7 @@ export default function Calendario() {
     const todayStr = toISODateString(new Date());
 
     return (
-      <div className="grid grid-cols-7 gap-3">
+      <div className="grid grid-cols-7 gap-4">
         {Array.from({ length: 7 }).map((_, i) => {
           const date = new Date(start);
           date.setDate(start.getDate() + i);
@@ -183,22 +189,27 @@ export default function Calendario() {
           const isToday = dateStr === todayStr;
 
           return (
-            <div key={dateStr} className="space-y-2">
-              <div className={`text-center p-3 rounded-lg border transition-colors ${
-                isToday ? "bg-primary text-primary-foreground border-primary" : "bg-muted/30 border-border/50"
+            <div key={dateStr} className="space-y-3">
+              <div className={`text-center p-3 rounded-xl border transition-all ${
+                isToday ? "bg-primary text-primary-foreground border-primary shadow-md" : "bg-muted/30 border-border/50"
               }`}>
-                <div className="text-[11px] font-semibold uppercase text-muted-foreground/80">{formatDateSafe(date, "EEE")}</div>
-                <div className="text-lg font-bold">{date.getDate()}</div>
+                <div className="text-[10px] font-black uppercase opacity-70 tracking-widest">{formatDateSafe(date, "EEE")}</div>
+                <div className="text-xl font-black">{date.getDate()}</div>
               </div>
               <div className="space-y-2">
                 {events.map(ev => (
                   <div
                     key={ev.id}
-                    className="p-2 rounded-lg border border-border/50 bg-card hover:border-primary/50 transition-colors cursor-pointer text-sm"
+                    className="p-3 rounded-xl border border-border/50 bg-card hover:border-primary/40 hover:shadow-md transition-all cursor-pointer group"
                     onClick={() => navigate(`/agendamentos/${ev.id}`)}
                   >
-                    <div className="text-[10px] font-semibold text-primary mb-1">{ev.horario?.slice(0, 5)}</div>
-                    <div className="text-xs font-medium line-clamp-2">{ev.descricao}</div>
+                    <div className="flex items-center gap-1 text-[10px] font-black text-primary mb-1">
+                      <Clock className="w-3 h-3" />
+                      {ev.horario?.slice(0, 5)}
+                    </div>
+                    <div className="text-xs font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                      {ev.descricao}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -215,41 +226,49 @@ export default function Calendario() {
     const events = (eventsByDate[dateStr] || []).sort((a, b) => (a.horario || "").localeCompare(b.horario || ""));
 
     return (
-      <div className="space-y-4">
-        <div className="text-center mb-6">
-          <div className="text-sm font-semibold text-muted-foreground uppercase mb-1">
+      <div className="max-w-3xl mx-auto space-y-6">
+        <div className="text-center space-y-1">
+          <div className="text-xs font-black text-primary uppercase tracking-[0.2em]">
             {formatDateSafe(currentDate, "EEEE")}
           </div>
-          <div className="text-2xl font-bold">{formatDateSafe(currentDate, "dd 'de' MMMM")}</div>
+          <div className="text-4xl font-black tracking-tight">
+            {formatDateSafe(currentDate, "dd 'de' MMMM")}
+          </div>
         </div>
 
         {events.length === 0 ? (
-          <div className="py-12 text-center border-2 border-dashed rounded-lg border-border/50">
-            <p className="text-muted-foreground font-medium">Nenhum compromisso para este dia</p>
-            <Button variant="link" onClick={() => setShowCreate(true)} className="mt-2">
-              Criar novo agendamento
+          <div className="py-24 text-center border-2 border-dashed rounded-3xl border-border/40 bg-muted/5">
+            <CalendarIcon className="w-16 h-16 text-muted-foreground/10 mx-auto mb-4" />
+            <p className="text-muted-foreground font-bold text-lg">Nenhum compromisso para hoje</p>
+            <Button variant="outline" onClick={() => setShowCreate(true)} className="mt-4 font-bold rounded-full">
+              Agendar agora
             </Button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {events.map(ev => (
-              <Card key={ev.id} className="hover:border-primary/50 transition-colors cursor-pointer overflow-hidden" onClick={() => navigate(`/agendamentos/${ev.id}`)}>
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="text-lg font-bold text-primary tabular-nums">{ev.horario?.slice(0, 5)}</div>
-                    <div className="flex-1">
-                      <div className="font-semibold">{ev.descricao}</div>
-                      <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                        <MapPin className="w-3 h-3" />
-                        {ev.enderecoCerimonia}
+              <Card key={ev.id} className="group hover:border-primary/40 hover:shadow-xl transition-all cursor-pointer overflow-hidden rounded-2xl border-border/60" onClick={() => navigate(`/agendamentos/${ev.id}`)}>
+                <CardContent className="p-0 flex">
+                  <div className="w-2 bg-primary/20 group-hover:bg-primary transition-colors" />
+                  <div className="p-5 flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-6">
+                      <div className="text-2xl font-black text-primary tabular-nums tracking-tighter">
+                        {ev.horario?.slice(0, 5)}
+                      </div>
+                      <div className="space-y-1">
+                        <div className="font-black text-lg leading-none">{ev.descricao}</div>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                          <MapPin className="w-3 h-3" />
+                          {ev.enderecoCerimonia}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-sm font-semibold text-right">
-                      R$ {Number(ev.valorServico).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    <div className="flex items-center justify-between sm:justify-end gap-4">
+                      <div className="text-sm font-black text-foreground/80">
+                        R$ {Number(ev.valorServico).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </div>
+                      <StatusBadge status={ev.status} />
                     </div>
-                    <StatusBadge status={ev.status} />
                   </div>
                 </CardContent>
               </Card>
@@ -261,74 +280,82 @@ export default function Calendario() {
   };
 
   return (
-    <div className="space-y-5 page-enter">
+    <div className="space-y-8 page-enter max-w-[1400px] mx-auto pb-10">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Calendário</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
-            {data?.total ?? 0} {(data?.total ?? 0) === 1 ? "agendamento" : "agendamentos"} no período
-          </p>
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest">
+            <CalendarIcon className="w-3 h-3" />
+            Agenda do Sistema
+          </div>
+          <h1 className="text-4xl font-black tracking-tighter lg:text-5xl">Calendário</h1>
         </div>
-        <Button onClick={() => setShowCreate(true)} className="gap-2">
-          <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">Novo Agendamento</span>
-          <span className="sm:hidden">Novo</span>
-        </Button>
+        
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex bg-muted/40 p-1.5 rounded-2xl border border-border/40 shadow-inner">
+            {(["month", "week", "day"] as const).map((v) => (
+              <Button
+                key={v}
+                variant={view === v ? "default" : "ghost"}
+                size="sm"
+                className={`h-9 px-6 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${
+                  view === v ? "shadow-lg" : "hover:bg-primary/5"
+                }`}
+                onClick={() => setView(v)}
+              >
+                {v === "month" ? "Mês" : v === "week" ? "Semana" : "Dia"}
+              </Button>
+            ))}
+          </div>
+          <Button onClick={() => setShowCreate(true)} className="h-12 px-8 gap-2 font-black rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all">
+            <Plus className="w-5 h-5" />
+            <span>NOVO EVENTO</span>
+          </Button>
+        </div>
       </div>
 
+      {/* Erro de Carregamento */}
+      {error && (
+        <div className="bg-destructive/10 border border-destructive/20 p-4 rounded-2xl flex items-center gap-3 text-destructive">
+          <AlertCircle className="w-5 h-5" />
+          <div className="flex-1 text-sm font-bold">Erro ao carregar agendamentos: {error.message}</div>
+          <Button variant="outline" size="sm" onClick={() => refetch()} className="h-8 font-black text-[10px] uppercase">Tentar novamente</Button>
+        </div>
+      )}
+
       {/* Toolbar de Navegação */}
-      <Card className="border-border/50">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" onClick={handlePrev} className="h-9 w-9">
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleToday} className="h-9 px-4 text-xs font-semibold uppercase">
-                Hoje
-              </Button>
-              <Button variant="outline" size="icon" onClick={handleNext} className="h-9 w-9">
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-
-            <div className="flex bg-muted/50 p-1 rounded-lg border border-border/50">
-              {(["month", "week", "day"] as const).map((v) => (
-                <Button
-                  key={v}
-                  variant={view === v ? "secondary" : "ghost"}
-                  size="sm"
-                  className="h-8 px-4 text-xs font-semibold uppercase"
-                  onClick={() => setView(v)}
-                >
-                  {v === "month" ? "Mês" : v === "week" ? "Semana" : "Dia"}
-                </Button>
-              ))}
-            </div>
-
-            <div className="text-sm font-semibold text-muted-foreground text-right min-w-max">
-              {formatDateSafe(currentDate, "MMMM yyyy").toUpperCase()}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-between bg-card/50 backdrop-blur-sm p-3 rounded-2xl border border-border/40 shadow-sm">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="icon" onClick={handlePrev} className="h-10 w-10 rounded-xl border-border/40 hover:bg-primary/5">
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleToday} className="h-10 px-6 font-black text-[10px] uppercase tracking-widest rounded-xl border-border/40 hover:bg-primary/5">
+            Hoje
+          </Button>
+          <Button variant="outline" size="icon" onClick={handleNext} className="h-10 w-10 rounded-xl border-border/40 hover:bg-primary/5">
+            <ChevronRight className="w-5 h-5" />
+          </Button>
+        </div>
+        <div className="text-sm font-black text-foreground/70 tracking-widest px-4 uppercase">
+          {formatDateSafe(currentDate, "MMMM yyyy")}
+        </div>
+      </div>
 
       {/* Área Principal */}
-      <Card className="border-border/50">
+      <div className="min-h-[650px]">
         {isLoading ? (
-          <CardContent className="p-6 space-y-4">
-            <Skeleton className="h-12 w-full rounded-lg" />
-            <Skeleton className="h-96 w-full rounded-lg" />
-          </CardContent>
+          <div className="space-y-6">
+            <Skeleton className="h-14 w-full rounded-2xl" />
+            <Skeleton className="h-[600px] w-full rounded-3xl" />
+          </div>
         ) : (
-          <CardContent className="p-6">
+          <div className="bg-card rounded-3xl border border-border/40 shadow-2xl p-4 sm:p-8 animate-in fade-in zoom-in-95 duration-500">
             {view === "month" && renderMonthView()}
             {view === "week" && renderWeekView()}
             {view === "day" && renderDayView()}
-          </CardContent>
+          </div>
         )}
-      </Card>
+      </div>
 
       {showCreate && (
         <AgendamentoModal 
