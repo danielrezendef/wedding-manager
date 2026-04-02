@@ -41,9 +41,9 @@ import logoImg from "@/assets/logo.png";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: Calendar, label: "Agendamentos", path: "/agendamentos" },
+  { icon: Calendar, label: "Calendário", path: "/calendario" },
+  { icon: Clock, label: "Agendamentos", path: "/agendamentos" },
   { icon: FileText, label: "Contratos", path: "/contratos" },
-
 ];
 
 const adminMenuItems = [
