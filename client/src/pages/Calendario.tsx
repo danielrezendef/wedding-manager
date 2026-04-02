@@ -71,12 +71,8 @@ export default function Calendario() {
     if (!data?.items) return grouped;
     
     data.items.forEach((ag) => {
-      let dateKey = "";
-      if (typeof ag.dataEvento === 'string') {
-        dateKey = ag.dataEvento.split('T')[0];
-      } else if (ag.dataEvento instanceof Date) {
-        dateKey = toISODateString(ag.dataEvento);
-      }
+      // Sempre usar toISODateString para garantir consistência
+      const dateKey = toISODateString(ag.dataEvento);
 
       if (dateKey) {
         if (!grouped[dateKey]) grouped[dateKey] = [];
@@ -139,8 +135,6 @@ export default function Calendario() {
           onClick={() => {
             setCurrentDate(date);
             setView("day");
-            setSelectedDateForCreate(date);
-            setShowCreate(true);
           }}
         >
           <span className={`text-xs font-bold mb-1 ${isToday ? "text-primary" : "text-muted-foreground/70"}`}>
@@ -243,7 +237,10 @@ export default function Calendario() {
           <div className="py-24 text-center border-2 border-dashed rounded-3xl border-border/40 bg-muted/5">
             <CalendarIcon className="w-16 h-16 text-muted-foreground/10 mx-auto mb-4" />
             <p className="text-muted-foreground font-bold text-lg">Nenhum compromisso para hoje</p>
-            <Button variant="outline" onClick={() => setShowCreate(true)} className="mt-4 font-bold rounded-full">
+            <Button variant="outline" onClick={() => {
+              setSelectedDateForCreate(currentDate);
+              setShowCreate(true);
+            }} className="mt-4 font-bold rounded-full">
               Agendar agora
             </Button>
           </div>
