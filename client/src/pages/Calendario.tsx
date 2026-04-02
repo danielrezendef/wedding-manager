@@ -10,10 +10,11 @@ import {
   Plus,
   Calendar as CalendarIcon,
   Clock,
-  MapPin
+  MapPin,
+  AlertCircle
 } from "lucide-react";
 import AgendamentoModal from "@/components/AgendamentoModal";
-import { formatDateSafe, toISODateString, parseDateSafe } from "@shared/dateUtils";
+import { formatDateSafe, toISODateString } from "@shared/dateUtils";
 import StatusBadge from "@/components/StatusBadge";
 
 type ViewType = "month" | "week" | "day";
@@ -22,29 +23,32 @@ export default function Calendario() {
   const [, navigate] = useLocation();
   const [showCreate, setShowCreate] = useState(false);
   const [view, setView] = useState<ViewType>("month");
+  const utils = trpc.useUtils();
   
-  // Data de referência para navegação (sempre ao meio-dia para evitar shifts)
   const [currentDate, setCurrentDate] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
   });
 
-  // Busca TODOS os agendamentos para o calendário
-  // Aumentamos o pageSize para garantir que todos os eventos do período visível sejam carregados
-  const { data, isLoading } = trpc.agendamentos.list.useQuery({
-    pageSize: 2000, 
-  }, {
-    staleTime: 1000 * 60 * 2, // 2 minutos de cache
+  // Busca agendamentos com invalidação automática
+  const { data, isLoading, error, refetch } = trpc.agendamentos.list.useQuery({
+    pageSize: 5000, // Garantir que pegamos tudo
   });
 
   // Agrupamento de eventos por data (YYYY-MM-DD)
-  // CRÍTICO: Usamos toISODateString para garantir que a chave bata com o valor do banco
   const eventsByDate = useMemo(() => {
     const grouped: Record<string, any[]> = {};
     if (!data?.items) return grouped;
     
     data.items.forEach((ag) => {
-      const dateKey = toISODateString(ag.dataEvento);
+      // Tenta extrair a data de várias formas para garantir compatibilidade
+      let dateKey = "";
+      if (typeof ag.dataEvento === 'string') {
+        dateKey = ag.dataEvento.split('T')[0];
+      } else if (ag.dataEvento instanceof Date) {
+        dateKey = toISODateString(ag.dataEvento);
+      }
+
       if (dateKey) {
         if (!grouped[dateKey]) grouped[dateKey] = [];
         grouped[dateKey].push(ag);
@@ -53,7 +57,6 @@ export default function Calendario() {
     return grouped;
   }, [data]);
 
-  // Navegação
   const handlePrev = useCallback(() => {
     setCurrentDate(prev => {
       const d = new Date(prev);
@@ -83,20 +86,15 @@ export default function Calendario() {
   const renderMonthView = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    
-    // Primeiro dia do mês e total de dias
     const firstDayIdx = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    
     const todayStr = toISODateString(new Date());
     const cells = [];
 
-    // Células vazias (mês anterior)
     for (let i = 0; i < firstDayIdx; i++) {
-      cells.push(<div key={`p-${i}`} className="h-24 sm:h-32 bg-muted/5 border border-border/20" />);
+      cells.push(<div key={`p-${i}`} className="h-24 sm:h-32 bg-muted/5 border border-border/10" />);
     }
 
-    // Dias do mês
     for (let d = 1; d <= daysInMonth; d++) {
       const date = new Date(year, month, d, 12, 0, 0);
       const dateStr = toISODateString(date);
@@ -255,7 +253,7 @@ export default function Calendario() {
 
   return (
     <div className="space-y-8 page-enter max-w-[1400px] mx-auto pb-10">
-      {/* Header Moderno */}
+      {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div className="space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest">
@@ -287,6 +285,15 @@ export default function Calendario() {
           </Button>
         </div>
       </div>
+
+      {/* Erro de Carregamento */}
+      {error && (
+        <div className="bg-destructive/10 border border-destructive/20 p-4 rounded-2xl flex items-center gap-3 text-destructive">
+          <AlertCircle className="w-5 h-5" />
+          <div className="flex-1 text-sm font-bold">Erro ao carregar agendamentos: {error.message}</div>
+          <Button variant="outline" size="sm" onClick={() => refetch()} className="h-8 font-black text-[10px] uppercase">Tentar novamente</Button>
+        </div>
+      )}
 
       {/* Toolbar de Navegação */}
       <div className="flex items-center justify-between bg-card/50 backdrop-blur-sm p-3 rounded-2xl border border-border/40 shadow-sm">
@@ -322,7 +329,16 @@ export default function Calendario() {
         )}
       </div>
 
-      {showCreate && <AgendamentoModal open={showCreate} onOpenChange={setShowCreate} />}
+      {showCreate && (
+        <AgendamentoModal 
+          open={showCreate} 
+          onClose={() => setShowCreate(false)} 
+          onSuccess={() => {
+            utils.agendamentos.list.invalidate();
+            refetch();
+          }} 
+        />
+      )}
     </div>
   );
 }
