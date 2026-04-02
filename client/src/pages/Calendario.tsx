@@ -284,11 +284,7 @@ export default function Calendario() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest">
-            <CalendarIcon className="w-3 h-3" />
-            Agenda do Sistema
-          </div>
-          <h1 className="text-4xl font-black tracking-tighter lg:text-5xl">Calendário</h1>
+          <h1 className="text-2xl font-bold">Calendário</h1>
         </div>
         
         <div className="flex flex-wrap items-center gap-3">
