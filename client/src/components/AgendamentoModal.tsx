@@ -36,13 +36,14 @@ type Props = {
   onClose: () => void;
   onSuccess: () => void;
   agendamento?: any;
+  dataInicial?: Date | string;
 };
 
 function toDateInputValue(dataEvento: unknown): string {
   return toISODateString(dataEvento as any);
 }
 
-export default function AgendamentoModal({ open, onClose, onSuccess, agendamento }: Props) {
+export default function AgendamentoModal({ open, onClose, onSuccess, agendamento, dataInicial }: Props) {
   const isEdit = !!agendamento;
 
   const {
@@ -71,9 +72,12 @@ export default function AgendamentoModal({ open, onClose, onSuccess, agendamento
         observacoes: agendamento.observacoes ?? "",
       });
     } else {
-      reset({ status: "orcamento" });
+      reset({ 
+        status: "orcamento",
+        dataEvento: dataInicial ? toDateInputValue(dataInicial) : "",
+      });
     }
-  }, [agendamento, open]);
+  }, [agendamento, dataInicial, open]);
 
   const createMutation = trpc.agendamentos.create.useMutation({
     onSuccess: () => {

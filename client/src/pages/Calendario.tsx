@@ -22,6 +22,7 @@ type ViewType = "month" | "week" | "day";
 export default function Calendario() {
   const [, navigate] = useLocation();
   const [showCreate, setShowCreate] = useState(false);
+  const [selectedDateForCreate, setSelectedDateForCreate] = useState<Date | null>(null);
   const [view, setView] = useState<ViewType>("month");
   const utils = trpc.useUtils();
   
@@ -138,6 +139,8 @@ export default function Calendario() {
           onClick={() => {
             setCurrentDate(date);
             setView("day");
+            setSelectedDateForCreate(date);
+            setShowCreate(true);
           }}
         >
           <span className={`text-xs font-bold mb-1 ${isToday ? "text-primary" : "text-muted-foreground/70"}`}>
@@ -356,11 +359,16 @@ export default function Calendario() {
       {showCreate && (
         <AgendamentoModal 
           open={showCreate} 
-          onClose={() => setShowCreate(false)} 
+          onClose={() => {
+            setShowCreate(false);
+            setSelectedDateForCreate(null);
+          }} 
           onSuccess={() => {
             utils.agendamentos.list.invalidate();
             refetch();
-          }} 
+            setSelectedDateForCreate(null);
+          }}
+          dataInicial={selectedDateForCreate || undefined}
         />
       )}
     </div>
