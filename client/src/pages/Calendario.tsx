@@ -30,9 +30,38 @@ export default function Calendario() {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
   });
 
-  // Busca agendamentos com invalidação automática
+  // Cálculo do intervalo de datas visível para filtrar no servidor
+  const dateRange = useMemo(() => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    if (view === "month") {
+      // Pega do dia 1 ao último dia do mês
+      const start = new Date(year, month, 1, 12, 0, 0);
+      const end = new Date(year, month + 1, 0, 12, 0, 0);
+      return { start: toISODateString(start), end: toISODateString(end) };
+    } else if (view === "week") {
+      // Pega o início e fim da semana
+      const start = new Date(currentDate);
+      start.setDate(currentDate.getDate() - currentDate.getDay());
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      return { start: toISODateString(start), end: toISODateString(end) };
+    } else {
+      // Apenas o dia atual
+      const dayStr = toISODateString(currentDate);
+      return { start: dayStr, end: dayStr };
+    }
+  }, [currentDate, view]);
+
+  // Busca agendamentos filtrados pelo período visível
+  // Isso garante que mesmo com o limite de 50 por página, os eventos do mês/semana apareçam
   const { data, isLoading, error, refetch } = trpc.agendamentos.list.useQuery({
-    pageSize: 50, // Máximo permitido pelo servidor
+    dataInicio: dateRange.start,
+    dataFim: dateRange.end,
+    pageSize: 50, 
+  }, {
+    staleTime: 1000 * 60 * 2,
   });
 
   // Agrupamento de eventos por data (YYYY-MM-DD)
@@ -41,7 +70,6 @@ export default function Calendario() {
     if (!data?.items) return grouped;
     
     data.items.forEach((ag) => {
-      // Tenta extrair a data de várias formas para garantir compatibilidade
       let dateKey = "";
       if (typeof ag.dataEvento === 'string') {
         dateKey = ag.dataEvento.split('T')[0];
