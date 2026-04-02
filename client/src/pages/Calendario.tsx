@@ -32,7 +32,7 @@ export default function Calendario() {
 
   // Busca agendamentos com invalidação automática
   const { data, isLoading, error, refetch } = trpc.agendamentos.list.useQuery({
-    pageSize: 5000, // Garantir que pegamos tudo
+    pageSize: 50, // Máximo permitido pelo servidor
   });
 
   // Agrupamento de eventos por data (YYYY-MM-DD)
