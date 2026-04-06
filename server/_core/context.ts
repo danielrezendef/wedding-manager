@@ -11,7 +11,7 @@ export type TrpcContext = {
   user: User | null;
 };
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? "wedding-secret-key");
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? "Sgaapp-key");
 const COOKIE_NAME = "app_session_id";
 
 async function authenticateCustomJwt(req: CreateExpressContextOptions["req"]): Promise<User | null> {
