@@ -184,8 +184,20 @@ export async function listAgendamentos(filters: AgendamentoFilters = {}) {
   if (filters.userId) conditions.push(eq(agendamentos.userId, filters.userId));
   if (filters.status) conditions.push(eq(agendamentos.status, filters.status));
   if (filters.descricao) conditions.push(like(agendamentos.descricao, `%${filters.descricao}%`));
-  if (filters.dataInicio) conditions.push(gte(agendamentos.dataEvento, parseDateSafe(filters.dataInicio) as Date));
-  if (filters.dataFim) conditions.push(lte(agendamentos.dataEvento, parseDateSafe(filters.dataFim) as Date));
+  if (filters.dataInicio) {
+    const startDate = parseDateSafe(filters.dataInicio);
+    if (startDate) {
+      startDate.setHours(0, 0, 0, 0);
+      conditions.push(gte(agendamentos.dataEvento, startDate));
+    }
+  }
+  if (filters.dataFim) {
+    const endDate = parseDateSafe(filters.dataFim);
+    if (endDate) {
+      endDate.setHours(23, 59, 59, 999);
+      conditions.push(lte(agendamentos.dataEvento, endDate));
+    }
+  }
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -473,4 +485,3 @@ export async function deleteContrato(id: number): Promise<void> {
 
   await db.delete(contratos).where(eq(contratos.id, id));
 }
-
