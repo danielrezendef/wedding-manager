@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.45, for Linux (x86_64)
 --
--- Host: interchange.proxy.rlwy.net    Database: wedding_manager
+-- Host: interchange.proxy.rlwy.net    Database: sga_app
 -- ------------------------------------------------------
 -- Server version	9.6.0
 
@@ -24,12 +24,12 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '';
 
 --
--- Current Database: `wedding_manager`
+-- Current Database: `sga_app`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `wedding_manager` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `sga_app` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 
-USE `wedding_manager`;
+USE `sga_app`;
 
 --
 -- Table structure for table `__drizzle_migrations`
@@ -200,11 +200,11 @@ INSERT INTO `users` VALUES (6,'google_1773293076261_gb7hr1dtsi5','Daniel Rezende
 UNLOCK TABLES;
 
 --
--- Dumping events for database 'wedding_manager'
+-- Dumping events for database 'sga_app'
 --
 
 --
--- Dumping routines for database 'wedding_manager'
+-- Dumping routines for database 'sga_app'
 --
 SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
