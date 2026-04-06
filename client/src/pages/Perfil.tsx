@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import WeddingLayout from "@/components/WeddingLayout";
 import { trpc } from "@/lib/trpc";
-import { Loader2, Upload, Mail, User } from "lucide-react";
+import { Loader2, Upload, Mail, User, Lock } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -17,10 +17,16 @@ export default function Perfil() {
     name: user?.name || "",
     email: user?.email || "",
   });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   const generateUploadUrlMutation = trpc.auth.generateProfilePhotoUploadUrl.useMutation();
   const uploadPhotoMutation = trpc.auth.uploadProfilePhoto.useMutation();
   const updateProfileMutation = trpc.auth.updateProfile.useMutation();
+  const changePasswordMutation = trpc.auth.changePassword.useMutation();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,6 +43,35 @@ export default function Perfil() {
       setIsEditing(false);
     } catch (error: any) {
       toast.error(error?.message || "Erro ao atualizar perfil");
+    }
+  };
+
+  const handlePasswordInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast.error("As senhas não coincidem");
+      return;
+    }
+
+    try {
+      await changePasswordMutation.mutateAsync({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+        confirmPassword: passwordData.confirmPassword,
+      });
+      toast.success("Senha alterada com sucesso!");
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (error: any) {
+      toast.error(error?.message || "Erro ao alterar senha");
     }
   };
 
@@ -178,7 +213,7 @@ export default function Perfil() {
         </Card>
 
         {/* Card de Informações Pessoais */}
-        <Card>
+        <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="w-5 h-5" />
@@ -256,6 +291,78 @@ export default function Perfil() {
                 </>
               )}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Card de Alterar Senha */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lock className="w-5 h-5" />
+              Alterar Senha
+            </CardTitle>
+            <CardDescription>
+              Mantenha sua conta segura alterando sua senha regularmente
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <div>
+                <Label htmlFor="currentPassword">Senha Atual</Label>
+                <Input
+                  id="currentPassword"
+                  name="currentPassword"
+                  type="password"
+                  value={passwordData.currentPassword}
+                  onChange={handlePasswordInputChange}
+                  required
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="newPassword">Nova Senha</Label>
+                <Input
+                  id="newPassword"
+                  name="newPassword"
+                  type="password"
+                  value={passwordData.newPassword}
+                  onChange={handlePasswordInputChange}
+                  required
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  value={passwordData.confirmPassword}
+                  onChange={handlePasswordInputChange}
+                  required
+                  className="mt-1"
+                />
+              </div>
+
+              <div className="pt-4">
+                <Button
+                  type="submit"
+                  disabled={changePasswordMutation.isPending}
+                  className="bg-rose-600 hover:bg-rose-700"
+                >
+                  {changePasswordMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Alterando...
+                    </>
+                  ) : (
+                    "Alterar Senha"
+                  )}
+                </Button>
+              </div>
+            </form>
           </CardContent>
         </Card>
       </div>

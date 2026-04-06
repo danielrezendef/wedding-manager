@@ -32,6 +32,7 @@ import {
   updateUserRole,
   updateUserProfile,
   updateUserProfilePhoto,
+  updateUserPassword,
 } from "./db";
 import { ENV } from "./_core/env";
 import { storagePut } from "./storage";
@@ -169,6 +170,36 @@ const authRouter = router({
       await updateUserProfile(ctx.user.id, { profilePhoto: input.photoUrl });
       const updated = await getUserById(ctx.user.id);
       return { success: true, user: updated };
+    }),
+
+  changePassword: protectedProcedure
+    .input(
+      z.object({
+        currentPassword: z.string().min(1, "Senha atual obrigatória"),
+        newPassword: z.string().min(6, "Nova senha deve ter ao menos 6 caracteres"),
+        confirmPassword: z.string().min(6, "Confirmação de senha deve ter ao menos 6 caracteres"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+      if (input.newPassword !== input.confirmPassword) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "As senhas não coincidem." });
+      }
+
+      const user = await getUserById(ctx.user.id);
+      if (!user || !user.password) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Usuário não encontrado ou sem senha local." });
+      }
+
+      const valid = await bcrypt.compare(input.currentPassword, user.password);
+      if (!valid) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Senha atual incorreta." });
+      }
+
+      const hash = await bcrypt.hash(input.newPassword, 12);
+      await updateUserPassword(ctx.user.id, hash);
+
+      return { success: true };
     }),
 
   // ─── Google OAuth ────────────────────────────────────────────────────────

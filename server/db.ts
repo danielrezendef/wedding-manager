@@ -162,6 +162,12 @@ export async function updateUserProfile(userId: number, data: { name?: string; e
   await db.update(users).set(updates).where(eq(users.id, userId));
 }
 
+export async function updateUserPassword(userId: number, passwordHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(users).set({ password: passwordHash }).where(eq(users.id, userId));
+}
+
 // ─── Agendamentos ─────────────────────────────────────────────────────────────
 export type AgendamentoFilters = {
   userId?: number;
