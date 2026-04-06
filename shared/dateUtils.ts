@@ -1,4 +1,5 @@
 import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 /**
  * Parses a date string or Date object into a Date object that represents the same 
@@ -43,7 +44,7 @@ export function parseDateSafe(date: string | Date | null | undefined): Date | nu
 export function formatDateSafe(date: string | Date | null | undefined, formatStr: string = "dd/MM/yyyy"): string {
   const d = parseDateSafe(date);
   if (!d) return "-";
-  return format(d, formatStr);
+  return format(d, formatStr, { locale: ptBR });
 }
 
 /**
