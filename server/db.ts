@@ -321,7 +321,7 @@ export async function getDashboardStats(userId?: number) {
     totalMes,
     porStatus,
     proximosEventos,
-    valorConfirmados,
+    valorOrcamento,
     porMes,
   ] = await Promise.all([
     // Total por ano
@@ -364,16 +364,15 @@ export async function getDashboardStats(userId?: number) {
       )
       .orderBy(asc(agendamentos.dataEvento))
       .limit(5),
-    // Valor total dos confirmados
+    // Valor total dos Orcamento
     db
-      .select({ total: sql<string>`COALESCE(SUM(${cobrancas.valor}), 0)` })
-      .from(cobrancas)
-      .innerJoin(agendamentos, eq(cobrancas.agendamentoId, agendamentos.id))
-      .where(
-        and(
-          userCondition ? eq(agendamentos.userId, userId!) : undefined,
-          eq(agendamentos.status, "confirmado")
-        )
+      .select({ total: sql<string>`COALESCE(SUM(${agendamentos.valorServico}), 0)` })
+    .from(agendamentos)
+    .where(
+      and(
+        userCondition,
+        sql`${agendamentos.status} = 'orcamento'`
+      )
       ),
     // Agendamentos por mês (últimos 6 meses) - busca bruta para agrupar no JS
     db
@@ -387,14 +386,14 @@ export async function getDashboardStats(userId?: number) {
       ),
   ]);
 
-  // Valor total a receber (todos os agendamentos não concluídos)
-  const valorReceber = await db
+  // Valor total Confirmado (todos os agendamentos não concluídos)
+  const valorConfirmados = await db
     .select({ total: sql<string>`COALESCE(SUM(${agendamentos.valorServico}), 0)` })
     .from(agendamentos)
     .where(
       and(
         userCondition,
-        sql`${agendamentos.status} != 'concluido'`
+        sql`${agendamentos.status} = 'pagamento'`
       )
     );
 
@@ -416,8 +415,8 @@ export async function getDashboardStats(userId?: number) {
     totalMes: totalMes[0]?.count ?? 0,
     porStatus,
     proximosEventos,
-    valorConfirmados: parseFloat(valorConfirmados[0]?.total ?? "0"),
-    valorReceber: parseFloat(valorReceber[0]?.total ?? "0"),
+    valorOrcamento: parseFloat(valorOrcamento[0]?.total ?? "0"),
+    valorConfirmado: parseFloat(valorConfirmados[0]?.total ?? "0"),
     porMes: porMesFormatted,
   };
 }

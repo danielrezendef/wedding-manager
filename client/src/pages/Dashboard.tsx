@@ -93,7 +93,7 @@ export default function Dashboard() {
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Este mês</p>
                 <p className="text-3xl font-bold mt-1">{stats?.totalMes ?? 0}</p>
-                <p className="text-xs text-muted-foreground mt-1">agendamentos</p>
+                <p className="text-xs text-muted-foreground mt-1">Agendamentos</p>
               </div>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10">
                 <Calendar className="w-5 h-5 text-primary" />
@@ -108,10 +108,10 @@ export default function Dashboard() {
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Este ano</p>
                 <p className="text-3xl font-bold mt-1">{stats?.totalAno ?? 0}</p>
-                <p className="text-xs text-muted-foreground mt-1">agendamentos</p>
+                <p className="text-xs text-muted-foreground mt-1">Agendamentos</p>
               </div>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50">
-                <TrendingUp className="w-5 h-5 text-blue-500" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-yellow-50">
+                <TrendingUp className="w-5 h-5 text-yellow-500" />
               </div>
             </div>
           </CardContent>
@@ -122,10 +122,10 @@ export default function Dashboard() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">A receber</p>
-                <p className="text-2xl font-bold mt-1 text-primary">
-                  {formatCurrency(stats?.valorReceber ?? 0)}
+                <p className="text-2xl font-bold mt-1 text-green-500">
+                  {formatCurrency(stats?.valorConfirmado ?? 0)}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">valor total</p>
+                <p className="text-xs text-muted-foreground mt-1">Valor total confirmados a receber</p>
               </div>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-green-50">
                 <DollarSign className="w-5 h-5 text-green-500" />
@@ -138,14 +138,14 @@ export default function Dashboard() {
           <CardContent className="p-5">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Confirmados</p>
-                <p className="text-2xl font-bold mt-1 text-green-600">
-                  {formatCurrency(stats?.valorConfirmados ?? 0)}
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Em Orçamento</p>
+                <p className="text-2xl font-bold mt-1 text-blue-600">
+                  {formatCurrency(stats?.valorOrcamento ?? 0)}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">receita confirmada</p>
+                <p className="text-xs text-muted-foreground mt-1">Receita em orçamento</p>
               </div>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50">
+                <CheckCircle2 className="w-5 h-5 text-blue-500" />
               </div>
             </div>
           </CardContent>
