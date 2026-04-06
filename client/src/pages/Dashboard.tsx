@@ -123,13 +123,13 @@ export default function Dashboard() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">A receber</p>
-                <p className="text-2xl font-bold mt-1 text-green-500">
+                <p className="text-2xl font-bold mt-1 text-green-600">
                   {formatCurrency(stats?.valorConfirmado ?? 0)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">Valor total confirmados a receber</p>
               </div>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-green-50">
-                <DollarSign className="w-5 h-5 text-green-500" />
+                <DollarSign className="w-5 h-5 text-green-600" />
               </div>
             </div>
           </CardContent>
@@ -146,7 +146,7 @@ export default function Dashboard() {
                 <p className="text-xs text-muted-foreground mt-1">Receita em orçamento</p>
               </div>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50">
-                <Receipt className="w-5 h-5 text-cyan-500" />
+                <Receipt className="w-5 h-5 text-cyan-600" />
               </div>
             </div>
           </CardContent>
