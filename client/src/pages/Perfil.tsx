@@ -68,8 +68,34 @@ export default function Perfil() {
         confirmPassword: "",
       });
     } catch (error: any) {
-      toast.error(error?.message || "Erro ao alterar senha");
+  let errorMessage = "Não foi possível alterar a senha.";
+
+  try {
+    // Caso venha como string JSON
+    const parsed =
+      typeof error?.message === "string" &&
+      (error.message.startsWith("[") || error.message.startsWith("{"))
+        ? JSON.parse(error.message)
+        : error?.message;
+
+    // Caso seja um array de erros
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      errorMessage = parsed.map((item) => item.message).filter(Boolean).join("\n");
     }
+    // Caso venha um único objeto com message
+    else if (parsed?.message) {
+      errorMessage = parsed.message;
+    }
+    // Caso venha uma string simples
+    else if (typeof error?.message === "string" && error.message.trim()) {
+      errorMessage = error.message;
+    }
+  } catch {
+    // fallback silencioso
+  }
+
+  toast.error(errorMessage);
+}
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
