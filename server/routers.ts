@@ -175,7 +175,6 @@ const authRouter = router({
   changePassword: protectedProcedure
     .input(
       z.object({
-        currentPassword: z.string().min(1, "Senha atual obrigatória"),
         newPassword: z.string().min(6, "Nova senha deve ter ao menos 6 caracteres"),
         confirmPassword: z.string().min(6, "Confirmação de senha deve ter ao menos 6 caracteres"),
       })
@@ -187,13 +186,8 @@ const authRouter = router({
       }
 
       const user = await getUserById(ctx.user.id);
-      if (!user || !user.password) {
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Usuário não encontrado ou sem senha local." });
-      }
-
-      const valid = await bcrypt.compare(input.currentPassword, user.password);
-      if (!valid) {
-        throw new TRPCError({ code: "UNAUTHORIZED", message: "Senha atual incorreta." });
+      if (!user) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Usuário não encontrado." });
       }
 
       const hash = await bcrypt.hash(input.newPassword, 12);

@@ -18,7 +18,6 @@ export default function Perfil() {
     email: user?.email || "",
   });
   const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
@@ -60,13 +59,11 @@ export default function Perfil() {
 
     try {
       await changePasswordMutation.mutateAsync({
-        currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
         confirmPassword: passwordData.confirmPassword,
       });
       toast.success("Senha alterada com sucesso!");
       setPasswordData({
-        currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
@@ -307,19 +304,6 @@ export default function Perfil() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handlePasswordChange} className="space-y-4">
-              <div>
-                <Label htmlFor="currentPassword">Senha Atual</Label>
-                <Input
-                  id="currentPassword"
-                  name="currentPassword"
-                  type="password"
-                  value={passwordData.currentPassword}
-                  onChange={handlePasswordInputChange}
-                  required
-                  className="mt-1"
-                />
-              </div>
-
               <div>
                 <Label htmlFor="newPassword">Nova Senha</Label>
                 <Input
