@@ -30,9 +30,27 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+
+  app.set("trust proxy", true);
+
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+  if (process.env.NODE_ENV === "production") {
+    app.use((req, res, next) => {
+      const host = req.headers.host?.split(":")[0].toLowerCase();
+      const proto = req.headers["x-forwarded-proto"];
+      const isHttps = String(proto || "").split(",").some(item => item.trim() === "https");
+
+      if (host === "sgaapp.com.br" || !isHttps) {
+        return res.redirect(301, "https://www.sgaapp.com.br" + req.originalUrl);
+      }
+
+      next();
+    });
+  }
+
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   // tRPC API
@@ -58,7 +76,7 @@ async function startServer() {
   }
 
   server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}/`);
+    console.log(`Server running on port ${port}`);
   });
 }
 
