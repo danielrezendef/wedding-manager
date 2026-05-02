@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch, Redirect, useLocation } from "wouter";
+import { Route, Switch, Redirect } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider, useAppAuth } from "./contexts/AuthContext";
@@ -66,13 +66,6 @@ function Router() {
 }
 
 function App() {
-  const [location] = useLocation();
-
-  // 🚀 LOGIN ULTRA LEVE (sem providers pesados)
-  if (location === "/login") {
-    return <Login />;
-  }
-
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
