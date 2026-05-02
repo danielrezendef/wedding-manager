@@ -8,10 +8,10 @@ import { useAppAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Eye, EyeOff, Calendar, Loader2, CheckCircle2, Clock, BarChart3 } from "lucide-react";
-import logoImg from "@/assets/logo.png";
+import logoImg from "@/assets/logo-sga-480.webp";
 
 // Google SDK types
 interface GoogleAccounts {
@@ -306,7 +306,15 @@ export default function Login() {
         <div className="w-full max-w-md relative z-10">
           {/* Mobile logo */}
           <div className="flex justify-center -mt-4">
-            <img src={logoImg} alt="SGA App Logo" className="h-60 w-auto object-contain" />
+            <img
+              src={logoImg}
+              alt="SGA App Logo"
+              className="h-60 w-auto object-contain"
+              width="480"
+              height="319"
+              decoding="async"
+              fetchPriority="high"
+            />
           </div>
           <Card className="-mt-6 border-border/50 shadow-2xl shadow-primary/10 backdrop-blur-sm bg-card/95">
             <CardHeader className="space-y-1">
