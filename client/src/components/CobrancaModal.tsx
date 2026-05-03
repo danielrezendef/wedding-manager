@@ -249,16 +249,6 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="condicaoPagamento">Condição de Pagamento *</Label>
-              <Input
-                id="condicaoPagamento"
-                placeholder="Ex: 50% entrada + 50% no dia"
-                {...register("condicaoPagamento")}
-              />
-              {errors.condicaoPagamento && <p className="text-xs text-destructive">{errors.condicaoPagamento.message}</p>}
-            </div>
-
-            <div className="space-y-1.5">
               <Label>Forma de Pagamento *</Label>
               <Select
                 value={formaPagamento}
@@ -277,6 +267,16 @@ export default function CobrancaModal({ open, onClose, onSuccess, agendamentoId,
                 </SelectContent>
               </Select>
               {errors.formaPagamento && <p className="text-xs text-destructive">{errors.formaPagamento.message}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="condicaoPagamento">Condição de Pagamento *</Label>
+              <Input
+                id="condicaoPagamento"
+                placeholder="Ex: 50% entrada + 50% no dia"
+                {...register("condicaoPagamento")}
+              />
+              {errors.condicaoPagamento && <p className="text-xs text-destructive">{errors.condicaoPagamento.message}</p>}
             </div>
           </div>
 
