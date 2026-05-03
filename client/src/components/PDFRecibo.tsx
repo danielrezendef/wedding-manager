@@ -391,12 +391,12 @@ export const PDFRecibo: React.FC<PDFReciboProps> = ({
             <Text style={styles.value}>{formatCurrency(cobranca.valor)}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Condição de Pagamento:</Text>
-            <Text style={styles.value}>{cobranca.condicaoPagamento}</Text>
-          </View>
-          <View style={styles.row}>
             <Text style={styles.label}>Forma de Pagamento:</Text>
             <Text style={styles.value}>{cobranca.formaPagamento}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Condição de Pagamento:</Text>
+            <Text style={styles.value}>{cobranca.condicaoPagamento}</Text>
           </View>
         </View>
 
