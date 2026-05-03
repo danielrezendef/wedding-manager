@@ -151,13 +151,14 @@ export async function deleteUser(userId: number) {
   await db.delete(users).where(eq(users.id, userId));
 }
 
-export async function updateUserProfile(userId: number, data: { name?: string; email?: string; profilePhoto?: string }) {
+export async function updateUserProfile(userId: number, data: { name?: string; email?: string; profilePhoto?: string; gerarContratoAutomaticamente?: boolean }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const updates: Record<string, unknown> = {};
   if (data.name !== undefined) updates.name = data.name;
   if (data.email !== undefined) updates.email = data.email;
   if (data.profilePhoto !== undefined) updates.profilePhoto = data.profilePhoto;
+  if (data.gerarContratoAutomaticamente !== undefined) updates.gerarContratoAutomaticamente = data.gerarContratoAutomaticamente ? 1 : 0;
   if (Object.keys(updates).length === 0) return;
   await db.update(users).set(updates).where(eq(users.id, userId));
 }
@@ -289,14 +290,14 @@ export async function getCobrancaByAgendamentoId(agendamentoId: number) {
   return result[0];
 }
 
-export async function createCobranca(data: any) {
+export async function createCobranca(data: any, nextStatus: "confirmado" | "pagamento" = "confirmado") {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.insert(cobrancas).values(data);
   // Update agendamento status to confirmado
   await db
     .update(agendamentos)
-    .set({ status: "confirmado" })
+    .set({ status: nextStatus })
     .where(eq(agendamentos.id, data.agendamentoId));
   return getCobrancaByAgendamentoId(data.agendamentoId);
 }

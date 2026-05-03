@@ -7,6 +7,7 @@ export type AuthUser = {
   email: string | null;
   profilePhoto?: string | null;
   role: "user" | "admin";
+  gerarContratoAutomaticamente?: number | boolean | null;
 };
 
 type AuthContextType = {

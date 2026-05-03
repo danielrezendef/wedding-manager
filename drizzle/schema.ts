@@ -20,6 +20,7 @@ export const users = mysqlTable("users", {
   loginMethod: varchar("loginMethod", { length: 64 }),
   profilePhoto: text("profilePhoto"), // URL da foto de perfil
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  gerarContratoAutomaticamente: int("gerar_contrato_automaticamente").notNull().default(0),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),

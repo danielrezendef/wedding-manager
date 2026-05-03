@@ -132,11 +132,25 @@ const authRouter = router({
         name: z.string().min(2).optional(),
         email: z.string().email().optional(),
         profilePhoto: z.string().optional(),
+        gerarContratoAutomaticamente: z.boolean().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
       await updateUserProfile(ctx.user.id, input);
+      const updated = await getUserById(ctx.user.id);
+      return { success: true, user: updated };
+    }),
+
+  updateContratoAutomatico: protectedProcedure
+    .input(
+      z.object({
+        gerarContratoAutomaticamente: z.boolean(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+      await updateUserProfile(ctx.user.id, { gerarContratoAutomaticamente: input.gerarContratoAutomaticamente });
       const updated = await getUserById(ctx.user.id);
       return { success: true, user: updated };
     }),
@@ -409,7 +423,27 @@ const cobrancasRouter = router({
       }
       const existing = await getCobrancaByAgendamentoId(input.agendamentoId);
       if (existing) throw new TRPCError({ code: "CONFLICT", message: "Cobrança já cadastrada para este agendamento." });
-      return createCobranca(input as any);
+
+      const usuario = await getUserById(ctx.user.id);
+      const gerarContratoAutomaticamente = (usuario?.gerarContratoAutomaticamente ?? 0) === 1;
+      const cobranca = await createCobranca(input as any, gerarContratoAutomaticamente ? "confirmado" : "pagamento");
+
+      if (gerarContratoAutomaticamente) {
+        await createContrato({
+          userId: ctx.user.id,
+          nomeCompleto: input.nomeResponsavel,
+          cpf: input.cpf,
+          cep: input.cep,
+          rua: input.rua,
+          numero: input.numero,
+          complemento: input.complemento,
+          bairro: input.bairro,
+          cidade: input.cidade,
+          estado: input.estado,
+        });
+      }
+
+      return cobranca;
     }),
 
   update: protectedProcedure
