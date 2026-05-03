@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
+import { useAppAuth } from "@/contexts/AuthContext";
 
 type FormDataType = {
   nomeCompleto: string;
@@ -38,6 +39,8 @@ const initialFormData: FormDataType = {
 };
 
 export default function Contratos() {
+  const { user } = useAppAuth();
+  const canUseContracts = Boolean(user?.gerarContratoAutomaticamente);
   const [formData, setFormData] = useState<FormDataType>(initialFormData);
   const [isEditing, setIsEditing] = useState(false);
   const [isSearchingCep, setIsSearchingCep] = useState(false);
@@ -148,6 +151,11 @@ export default function Contratos() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!canUseContracts) {
+      toast.error("Ative a emissão automática de contrato no perfil para editar os contratos.");
+      return;
+    }
+
     if (!formData.nomeCompleto || !formData.cpf || !formData.rua || !formData.numero || !formData.bairro || !formData.cidade || !formData.estado) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
@@ -177,7 +185,7 @@ export default function Contratos() {
   };
 
   const isSaving = createMutation.isPending || updateMutation.isPending;
-  const isDisabled = !!contrato && !isEditing;
+  const isDisabled = !canUseContracts || (!!contrato && !isEditing);
   
   const hasChanges = contrato
     ? formData.nomeCompleto.trim() !== (contrato.nomeCompleto ?? "").trim() ||
@@ -201,7 +209,9 @@ export default function Contratos() {
           )}
         </div>
         <p className="text-muted-foreground mt-2">
-          Preencha seus dados de contrato abaixo
+          {canUseContracts
+            ? "Preencha seus dados de contrato abaixo"
+            : "Ative a emissão automática de contrato no perfil para habilitar os botões de contrato"}
         </p>
       </div>
 
@@ -331,6 +341,7 @@ export default function Contratos() {
                 <Button
                   type="button"
                   onClick={() => setIsEditing(true)}
+                  disabled={!canUseContracts}
                   className="w-full"
                 >
                   Editar
@@ -339,7 +350,7 @@ export default function Contratos() {
                 <>
                   <Button
                     type="submit"
-                    disabled={isSaving || (contrato ? !hasChanges : false)}
+                    disabled={!canUseContracts || isSaving || (contrato ? !hasChanges : false)}
                     className="flex-1"
                   >
                     {isSaving ? (
@@ -371,6 +382,7 @@ export default function Contratos() {
                         });
                       }}
                       className="flex-1"
+                      disabled={!canUseContracts}
                     >
                       Cancelar
                     </Button>
