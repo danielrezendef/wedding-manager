@@ -43,7 +43,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: Calendar, label: "Calendário", path: "/calendario" },
   { icon: Clock, label: "Agendamentos", path: "/agendamentos" },
-  { icon: FileText, label: "Contratos", path: "/contratos" },
+  { icon: FileText, label: "Contratos", path: "/contratos", requiresAutoContract: true },
 ];
 
 const adminMenuItems = [
@@ -105,6 +105,7 @@ function WeddingLayoutContent({
   const isAdmin = user?.role === "admin";
 
   const activeLabel = [...menuItems, ...adminMenuItems].find(i => i.path === location)?.label ?? "Menu";
+  const canAccessContracts = Boolean(user?.gerarContratoAutomaticamente);
 
   useEffect(() => {
     if (isCollapsed) setIsResizing(false);
@@ -167,13 +168,18 @@ function WeddingLayoutContent({
             <SidebarMenu className="px-2 space-y-0.5">
               {menuItems.map(item => {
                 const isActive = location === item.path || location.startsWith(item.path + "/");
+                const isDisabled = Boolean(item.requiresAutoContract) && !canAccessContracts;
                 return (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
                       isActive={isActive}
-                      onClick={() => setLocation(item.path)}
-                      tooltip={item.label}
+                      onClick={() => {
+                        if (isDisabled) return;
+                        setLocation(item.path);
+                      }}
+                      tooltip={isDisabled ? "Ative a emissão automática de contrato no perfil" : item.label}
                       className="h-10 transition-all"
+                      disabled={isDisabled}
                     >
                       <item.icon className={`h-4 w-4 ${isActive ? "text-primary" : ""}`} />
                       <span className={isActive ? "font-medium" : ""}>{item.label}</span>

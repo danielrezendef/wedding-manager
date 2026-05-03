@@ -60,7 +60,7 @@ export default function AgendamentoDetalhe() {
   const id = Number.parseInt(params.id ?? "", 10);
   const hasValidId = Number.isFinite(id) && id > 0;
   const [, navigate] = useLocation();
-  const { isAdmin } = useAppAuth();
+  const { user, isAdmin } = useAppAuth();
   const utils = trpc.useUtils();
 
   const [showEdit, setShowEdit] = useState(false);
@@ -115,6 +115,7 @@ export default function AgendamentoDetalhe() {
   const cobranca = data.cobranca;
   const canAddCobranca = !cobranca;
   const canEditCobranca = !!cobranca;
+  const canUseContracts = Boolean(user?.gerarContratoAutomaticamente);
 
   const handleStatusChange = (newStatus: string) => {
     setIsChangingStatus(true);
@@ -302,7 +303,7 @@ export default function AgendamentoDetalhe() {
                       size="sm" 
                       className="w-full"
                       onClick={handleDownloadPDF}
-                      disabled={isGeneratingPDF}
+                      disabled={isGeneratingPDF || !canUseContracts}
                     >
                       {isGeneratingPDF ? (
                         <>
@@ -310,7 +311,7 @@ export default function AgendamentoDetalhe() {
                         </>
                       ) : (
                         <>
-                          <Download className="w-3.5 h-3.5 mr-1.5" /> Baixar Contrato
+                          <Download className="w-3.5 h-3.5 mr-1.5" /> {canUseContracts ? "Baixar Contrato" : "Ative contrato automático no perfil"}
                         </>
                       )}
                     </Button>
