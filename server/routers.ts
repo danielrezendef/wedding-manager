@@ -268,10 +268,9 @@ const agendamentosRouter = router({
       }).optional()
     )
     .query(async ({ ctx, input }) => {
-      const isAdmin = ctx.user.role === "admin";
       const filters = {
         ...(input ?? {}),
-        userId: isAdmin ? undefined : ctx.user.id,
+        userId: ctx.user.id,
       };
       return listAgendamentos(filters);
     }),
@@ -283,7 +282,7 @@ const agendamentosRouter = router({
         const ag = await getAgendamentoById(input.id);
         if (!ag) throw new TRPCError({ code: "NOT_FOUND", message: `Agendamento ${input.id} não encontrado no banco.` });
         
-        if (ctx.user.role !== "admin" && ag.userId !== ctx.user.id) {
+        if (ag.userId !== ctx.user.id) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem permissão para ver este agendamento." });
         }
         
@@ -339,7 +338,7 @@ const agendamentosRouter = router({
       const { id, ...data } = input;
       const ag = await getAgendamentoById(id);
       if (!ag) throw new TRPCError({ code: "NOT_FOUND" });
-      if (ctx.user.role !== "admin" && ag.userId !== ctx.user.id) {
+      if (ag.userId !== ctx.user.id) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
       return updateAgendamento(id, {
@@ -378,7 +377,7 @@ const cobrancasRouter = router({
     .query(async ({ ctx, input }) => {
       const ag = await getAgendamentoById(input.agendamentoId);
       if (!ag) throw new TRPCError({ code: "NOT_FOUND" });
-      if (ctx.user.role !== "admin" && ag.userId !== ctx.user.id) {
+      if (ag.userId !== ctx.user.id) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
       return getCobrancaByAgendamentoId(input.agendamentoId);
@@ -405,7 +404,7 @@ const cobrancasRouter = router({
     .mutation(async ({ ctx, input }) => {
       const ag = await getAgendamentoById(input.agendamentoId);
       if (!ag) throw new TRPCError({ code: "NOT_FOUND" });
-      if (ctx.user.role !== "admin" && ag.userId !== ctx.user.id) {
+      if (ag.userId !== ctx.user.id) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
       const existing = await getCobrancaByAgendamentoId(input.agendamentoId);
@@ -434,7 +433,7 @@ const cobrancasRouter = router({
     .mutation(async ({ ctx, input }) => {
       const ag = await getAgendamentoById(input.agendamentoId);
       if (!ag) throw new TRPCError({ code: "NOT_FOUND" });
-      if (ctx.user.role !== "admin" && ag.userId !== ctx.user.id) {
+      if (ag.userId !== ctx.user.id) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
       const { agendamentoId, ...rest } = input;
@@ -445,8 +444,7 @@ const cobrancasRouter = router({
 // ─── Dashboard Router ─────────────────────────────────────────────────────────
 const dashboardRouter = router({
   stats: protectedProcedure.query(async ({ ctx }) => {
-    const isAdmin = ctx.user.role === "admin";
-    return getDashboardStats(isAdmin ? undefined : ctx.user.id);
+    return getDashboardStats(ctx.user.id);
   }),
 });
 
