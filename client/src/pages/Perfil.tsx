@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 
 export default function Perfil() {
-  const { user } = useAppAuth();
+  const { user, setUser } = useAppAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [formData, setFormData] = useState({
@@ -169,12 +169,17 @@ export default function Perfil() {
   };
 
   const handleToggleContratoAutomatico = async (checked: boolean) => {
+    const previousValue = Boolean(user?.gerarContratoAutomaticamente ?? false);
+
     setGerarContratoAutomaticamente(checked);
+    setUser(user ? { ...user, gerarContratoAutomaticamente: checked } : user);
+
     try {
       await updateContratoAutomaticoMutation.mutateAsync({ gerarContratoAutomaticamente: checked });
       toast.success("Configuração salva com sucesso.");
     } catch (error: any) {
-      setGerarContratoAutomaticamente(Boolean(user?.gerarContratoAutomaticamente ?? false));
+      setGerarContratoAutomaticamente(previousValue);
+      setUser(user ? { ...user, gerarContratoAutomaticamente: previousValue } : user);
       toast.error(error?.message || "Não foi possível salvar a configuração.");
     }
   };
