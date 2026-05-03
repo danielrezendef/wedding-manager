@@ -85,6 +85,13 @@
       "when": 1774288995610,
       "tag": "0011_stale_landau",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1777800000000,
+      "tag": "0012_mighty_hawk_owl",
+      "breakpoints": true
     }
   ]
 }

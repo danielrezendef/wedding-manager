@@ -5,9 +5,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import WeddingLayout from "@/components/WeddingLayout";
 import { trpc } from "@/lib/trpc";
-import { Loader2, Upload, Mail, User, Lock } from "lucide-react";
-import { useState } from "react";
+import { Loader2, Upload, Mail, User, Lock, FileText } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
 
 export default function Perfil() {
   const { user } = useAppAuth();
@@ -26,6 +27,15 @@ export default function Perfil() {
   const uploadPhotoMutation = trpc.auth.uploadProfilePhoto.useMutation();
   const updateProfileMutation = trpc.auth.updateProfile.useMutation();
   const changePasswordMutation = trpc.auth.changePassword.useMutation();
+  const updateContratoAutomaticoMutation = trpc.auth.updateContratoAutomatico.useMutation();
+
+  const [gerarContratoAutomaticamente, setGerarContratoAutomaticamente] = useState(
+    Boolean(user?.gerarContratoAutomaticamente ?? false)
+  );
+
+  useEffect(() => {
+    setGerarContratoAutomaticamente(Boolean(user?.gerarContratoAutomaticamente ?? false));
+  }, [user?.gerarContratoAutomaticamente]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -158,6 +168,17 @@ export default function Perfil() {
     }
   };
 
+  const handleToggleContratoAutomatico = async (checked: boolean) => {
+    setGerarContratoAutomaticamente(checked);
+    try {
+      await updateContratoAutomaticoMutation.mutateAsync({ gerarContratoAutomaticamente: checked });
+      toast.success("Configuração salva com sucesso.");
+    } catch (error: any) {
+      setGerarContratoAutomaticamente(Boolean(user?.gerarContratoAutomaticamente ?? false));
+      toast.error(error?.message || "Não foi possível salvar a configuração.");
+    }
+  };
+
   if (!user) {
     return (
       <WeddingLayout>
@@ -175,6 +196,34 @@ export default function Perfil() {
           <h1 className="text-3xl font-bold text-foreground mb-2">Meu Perfil</h1>
           <p className="text-muted-foreground">Visualize e edite suas informações pessoais</p>
         </div>
+
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              Configuração de contrato
+            </CardTitle>
+            <CardDescription>
+              Controle como o sistema avança o fluxo após confirmar o orçamento.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="gerar-contrato-automaticamente">Emitir contrato automaticamente ao confirmar orçamento</Label>
+                <p className="text-sm text-muted-foreground">
+                  Quando ativado, o sistema cria o contrato automaticamente após o preenchimento dos dados de cobrança.
+                </p>
+              </div>
+              <Switch
+                id="gerar-contrato-automaticamente"
+                checked={gerarContratoAutomaticamente}
+                onCheckedChange={handleToggleContratoAutomatico}
+                disabled={updateContratoAutomaticoMutation.isPending}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Card de Foto de Perfil */}
         <Card className="mb-6">
