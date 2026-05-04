@@ -115,7 +115,7 @@ export default function Agendamentos() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar por descrição do evento..."
+                  placeholder="Buscar por descrição do agendamento..."
                   value={search}
                   onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                   className="pl-9"
@@ -187,7 +187,7 @@ export default function Agendamentos() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border/50">
-                    <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Evento</th>
+                    <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Agendamento</th>
                     <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Data & Hora</th>
                     <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Local</th>
                     <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Valor</th>

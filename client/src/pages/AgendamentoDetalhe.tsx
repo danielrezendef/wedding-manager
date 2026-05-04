@@ -209,7 +209,7 @@ export default function AgendamentoDetalhe() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-primary" />
-                Dados do Evento
+                Dados do Agendamento
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -219,7 +219,7 @@ export default function AgendamentoDetalhe() {
                 </div>
                 <InfoItem
                   icon={<Calendar className="w-4 h-4" />}
-                  label="Data do Evento"
+                  label="Data do Agendamento"
                   value={formatDateSafe(data.dataEvento, "dd 'de' MMMM 'de' yyyy")}
                 />
                 <InfoItem
