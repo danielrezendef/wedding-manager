@@ -374,11 +374,17 @@ const agendamentosRouter = router({
       return updateAgendamento(input.id, { status: input.status });
     }),
 
-  delete: adminProcedure
+  delete: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const ag = await getAgendamentoById(input.id);
       if (!ag) throw new TRPCError({ code: "NOT_FOUND" });
+      if (ag.userId !== ctx.user.id && ctx.user.role !== "admin") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Você não tem permissão para excluir este agendamento.",
+        });
+      }
       await deleteAgendamento(input.id);
       return { success: true };
     }),
