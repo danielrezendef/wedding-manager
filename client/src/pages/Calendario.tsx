@@ -19,6 +19,17 @@ import StatusBadge from "@/components/StatusBadge";
 
 type ViewType = "month" | "week" | "day";
 
+function isPastEvent(dataEvento: string | Date, horario?: string | null) {
+  const dateKey = toISODateString(dataEvento);
+  if (!dateKey) return false;
+
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const [hours = 23, minutes = 59] = (horario || "23:59").slice(0, 5).split(":").map(Number);
+  const eventDate = new Date(year, month - 1, day, hours, minutes);
+
+  return eventDate.getTime() < Date.now();
+}
+
 export default function Calendario() {
   const [, navigate] = useLocation();
   const [showCreate, setShowCreate] = useState(false);
@@ -141,10 +152,17 @@ export default function Calendario() {
             {d}
           </span>
           <div className="flex-1 space-y-1 overflow-y-auto scrollbar-hide">
-            {events.map(ev => (
+            {events.map(ev => {
+              const pastEvent = isPastEvent(ev.dataEvento, ev.horario);
+
+              return (
               <div
                 key={ev.id}
-                className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/10 truncate font-semibold"
+                className={`text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded border truncate font-semibold ${
+                  pastEvent
+                    ? "bg-foreground/15 text-foreground/60 border-foreground/10"
+                    : "bg-primary/10 text-primary border-primary/10"
+                }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(`/agendamentos/${ev.id}`);
@@ -152,7 +170,8 @@ export default function Calendario() {
               >
                 {ev.horario?.slice(0, 5)} {ev.descricao}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       );
@@ -194,21 +213,29 @@ export default function Calendario() {
                 <div className="text-xl font-black">{date.getDate()}</div>
               </div>
               <div className="space-y-2">
-                {events.map(ev => (
+                {events.map(ev => {
+                  const pastEvent = isPastEvent(ev.dataEvento, ev.horario);
+
+                  return (
                   <div
                     key={ev.id}
-                    className="p-3 rounded-xl border border-border/50 bg-card hover:border-primary/40 hover:shadow-md transition-all cursor-pointer group"
+                    className={`p-3 rounded-xl border transition-all cursor-pointer group ${
+                      pastEvent
+                        ? "border-border bg-muted/70 text-muted-foreground hover:border-foreground/30 hover:bg-muted"
+                        : "border-border/50 bg-card hover:border-primary/40 hover:shadow-md"
+                    }`}
                     onClick={() => navigate(`/agendamentos/${ev.id}`)}
                   >
-                    <div className="flex items-center gap-1 text-[10px] font-black text-primary mb-1">
+                    <div className={`flex items-center gap-1 text-[10px] font-black mb-1 ${pastEvent ? "text-foreground/60" : "text-primary"}`}>
                       <Clock className="w-3 h-3" />
                       {ev.horario?.slice(0, 5)}
                     </div>
-                    <div className="text-xs font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                    <div className={`text-xs font-bold leading-tight line-clamp-2 transition-colors ${pastEvent ? "text-muted-foreground" : "group-hover:text-primary"}`}>
                       {ev.descricao}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           );
@@ -246,17 +273,28 @@ export default function Calendario() {
           </div>
         ) : (
           <div className="space-y-4">
-            {events.map(ev => (
-              <Card key={ev.id} className="group hover:border-primary/40 hover:shadow-xl transition-all cursor-pointer overflow-hidden rounded-2xl border-border/60" onClick={() => navigate(`/agendamentos/${ev.id}`)}>
+            {events.map(ev => {
+              const pastEvent = isPastEvent(ev.dataEvento, ev.horario);
+
+              return (
+              <Card
+                key={ev.id}
+                className={`group transition-all cursor-pointer overflow-hidden rounded-2xl ${
+                  pastEvent
+                    ? "border-border bg-muted/70 text-muted-foreground hover:border-foreground/30"
+                    : "border-border/60 hover:border-primary/40 hover:shadow-xl"
+                }`}
+                onClick={() => navigate(`/agendamentos/${ev.id}`)}
+              >
                 <CardContent className="p-0 flex">
-                  <div className="w-2 bg-primary/20 group-hover:bg-primary transition-colors" />
+                  <div className={`w-2 transition-colors ${pastEvent ? "bg-foreground/20 group-hover:bg-foreground/30" : "bg-primary/20 group-hover:bg-primary"}`} />
                   <div className="p-5 flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-6">
-                      <div className="text-2xl font-black text-primary tabular-nums tracking-tighter">
+                      <div className={`text-2xl font-black tabular-nums tracking-tighter ${pastEvent ? "text-foreground/60" : "text-primary"}`}>
                         {ev.horario?.slice(0, 5)}
                       </div>
                       <div className="space-y-1">
-                        <div className="font-black text-lg leading-none">{ev.descricao}</div>
+                        <div className={`font-black text-lg leading-none ${pastEvent ? "text-muted-foreground" : ""}`}>{ev.descricao}</div>
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
                           <MapPin className="w-3 h-3" />
                           {ev.enderecoCerimonia}
@@ -264,7 +302,7 @@ export default function Calendario() {
                       </div>
                     </div>
                     <div className="flex items-center justify-between sm:justify-end gap-4">
-                      <div className="text-sm font-black text-foreground/80">
+                      <div className={`text-sm font-black ${pastEvent ? "text-muted-foreground" : "text-foreground/80"}`}>
                         R$ {Number(ev.valorServico).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                       </div>
                       <StatusBadge status={ev.status} />
@@ -272,7 +310,8 @@ export default function Calendario() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
